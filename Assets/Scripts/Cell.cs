@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Cell
+public class Cell : MonoBehaviour
 {
-    public GameObject CellPrefab { get; set; }
-    public (int, int) Coords { get; set; }
+    public int x;
+    public int y;
 }
