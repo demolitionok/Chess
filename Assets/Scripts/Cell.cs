@@ -4,4 +4,6 @@ using UnityEngine;
 
 public class Cell
 {
+    public GameObject CellPrefab { get; set; }
+    public (int, int) Coords { get; set; }
 }
