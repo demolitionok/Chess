@@ -10,29 +10,37 @@ public class Board : MonoBehaviour
     private float cellWidth;
     private float cellHeight;
     public float Offset;
+
+    private void Render()
+    {
+        
+    }
+
     private void GenerateBoard()
     {
-        for (int y = 0; y < CellFabric.Cells.GetLength(0); y++)
+        for (int y = 0; y < GameController.CellsGameObjects.GetLength(0); y++)
         {
-            for (int x = 0; x < CellFabric.Cells.GetLength(1); x++)
+            for (int x = 0; x < GameController.CellsGameObjects.GetLength(1); x++)
             {
                 CellFabric.CreateCell(CellPrefab, (x, y));
-                GameObject cell = Instantiate(CellPrefab, new Vector3(x*cellWidth + Offset, -y*cellHeight - Offset), Quaternion.identity);
-                cell.transform.SetParent(Canvas.transform, false);
-                var text = cell.transform.GetChild(0);//kostyl)
+                GameObject cellGameObject = Instantiate(CellPrefab, new Vector3(x*cellWidth + Offset, -y*cellHeight - Offset), Quaternion.identity);
+                cellGameObject.transform.SetParent(Canvas.transform, false);
+                var text = cellGameObject.transform.GetChild(0);//kostyl)
                 text.gameObject.GetComponent<Text>().text = $"{x}, {y}";
                 
-                cell.GetComponent<Cell>().State = CellState.Empty;
+                cellGameObject.GetComponent<Cell>().State = CellState.Empty;
+                cellGameObject.GetComponent<Cell>().x = x;
+                cellGameObject.GetComponent<Cell>().y = y;
                 if (x <= 7 && y <= 1)
                 {
-                    cell.GetComponent<Cell>().State = CellState.Black;
+                    cellGameObject.GetComponent<Cell>().State = CellState.Black;
                 }
                 else if (x <= 7 && y >= 6)
                 {
-                    cell.GetComponent<Cell>().State = CellState.White;
+                    cellGameObject.GetComponent<Cell>().State = CellState.White;
                 }
 
-                text.gameObject.GetComponent<Text>().text += $" {cell.GetComponent<Cell>().State}";
+                text.gameObject.GetComponent<Text>().text += $" {cellGameObject.GetComponent<Cell>().State}";
             }
         }
     }

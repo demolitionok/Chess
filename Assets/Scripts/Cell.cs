@@ -14,4 +14,9 @@ public class Cell : MonoBehaviour
     public CellState State;
     public int x;
     public int y;
+
+    public void ChooseCell()
+    {
+        GameController.ChosenCell = this;
+    }
 }

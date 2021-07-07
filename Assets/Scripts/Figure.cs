@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Figure : MonoBehaviour
 {
+    //TODO List<cell> movements
+    void GetPossibleMoves()
+    {
+    }
+
     // Start is called before the first frame update
     void Start()
     {
