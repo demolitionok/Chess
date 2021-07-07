@@ -417,3 +417,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Canvas: {fileID: 719548351}
   CellPrefab: {fileID: 3654566417930012829, guid: 74c421248b8067c4cbf40eed33c4195a, type: 3}
+  Offset: 16
