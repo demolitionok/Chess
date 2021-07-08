@@ -39,8 +39,9 @@ public static class GameController
         var result = new List<(int, int)>();
         foreach (var movement in selectedFigure.GetRelativeMoves())
         {
-            if (CanMove((movement.Item2 + selectedFigureCoords.Item2, movement.Item1 + selectedFigureCoords.Item1)))
-                result.Add((movement.Item2 + selectedFigureCoords.Item2, movement.Item1 + selectedFigureCoords.Item1));
+            var temp = (movement.Item1 + selectedFigureCoords.Item1, movement.Item2 + selectedFigureCoords.Item2);
+            if (CanMove(temp))
+                result.Add(temp);
         }
 
         return result;
@@ -48,52 +49,63 @@ public static class GameController
 
     public static void UpdateBoard()
     {
-        for (int y = 0; y < GameController.CellsGameObjects.GetLength(0); y++)
+        for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
         {
-            for (int x = 0; x < GameController.CellsGameObjects.GetLength(1); x++)
+            for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
             {
-                var curCell = GameController.GetCellByCoords((y, x));
+                var curCell = GetCellByCoords((y, x));
 
-                var t = GameController.CellsGameObjects[y, x].transform.GetChild(0);
+                var t = CellsGameObjects[y, x].transform.GetChild(0);
                 t.gameObject.GetComponent<Text>().text = $" {curCell.State}";
                 t.gameObject.GetComponent<Text>().text += $"\n {x}, {y}";
                 if(curCell.Figure != null) 
                     t.gameObject.GetComponent<Text>().text += $"\n {curCell.Figure.Name}";
                 
                 
-                if (GameController.selectedCoords == (y, x))
+                if (selectedCoords == (y, x))
                 {
-                    Debug.Log("correct click!");
+                    var colors = curCell.gameObject.GetComponent<Button>().colors;
+                    colors.normalColor = Color.green;
+                    colors.selectedColor = Color.green;
+                    curCell.gameObject.GetComponent<Button>().colors = colors;
+                }
+                else
+                {
+                    var colors = curCell.gameObject.GetComponent<Button>().colors;
+                    colors.normalColor = Color.white;
+                    colors.selectedColor = Color.white;
+                    curCell.gameObject.GetComponent<Button>().colors = colors;
                 }
             }
         }
     }
     public static void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
     {
-        var cell = GameController.GetCellByCoords(coords);
-        if (GameController.selectedCoords == null)
+        var cell = GetCellByCoords(coords);
+        if (selectedCoords == null)
         {
-            if (GameController.currentSide == cell.State)
+            if (currentSide == cell.State)
             {
-                GameController.selectedCoords = coords;
+                selectedCoords = coords;
             }
         }
         else
         {
-            if (GameController.selectedCoords == coords)
+            if (selectedCoords == coords)
             {
-                GameController.selectedCoords = null;
+                selectedCoords = null;
             }
-            else if (GameController.currentSide == cell.State)
+            else if (currentSide == cell.State)
             {
-                GameController.selectedCoords = coords;
+                selectedCoords = coords;
             }
             else
             {
-                var possibleMovements = GameController.GetPossibleMoves(GameController.selectedCoords.Value);
+                var possibleMovements = GetPossibleMoves(selectedCoords.Value);
                 if (possibleMovements.Contains(coords))
                 {
-                    GameController.MoveFigure(GameController.selectedCoords.Value, coords);
+                    MoveFigure(selectedCoords.Value, coords);
+                    selectedCoords = null;
                 }
             }
         }
