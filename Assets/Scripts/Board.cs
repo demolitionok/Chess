@@ -63,6 +63,12 @@ public class Board : MonoBehaviour
                 {
                     cell.Figure = new Bishop("bishop");
                 }
+                if (
+                    y == 0 && (x == 3 || x == xSize - 5)
+                )
+                {
+                    cell.Figure = new Queen("queen");
+                }
             }
         }
     }
