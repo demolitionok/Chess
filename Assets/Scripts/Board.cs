@@ -64,7 +64,7 @@ public class Board : MonoBehaviour
                     cell.Figure = new Bishop("bishop");
                 }
                 if (
-                    y == 0 && (x == 3 || x == xSize - 5)
+                    (y == 0 || y == ySize - 1) && (x == 3 || x == xSize - 5)
                 )
                 {
                     cell.Figure = new Queen("queen");
@@ -76,6 +76,12 @@ public class Board : MonoBehaviour
                 )
                 {
                     cell.Figure = new Knight("knight");
+                }
+                if (
+                    (y == 0 || y == ySize - 1) && (x == 4 || x == xSize - 4)
+                )
+                {
+                    cell.Figure = new King("king");
                 }
             }
         }

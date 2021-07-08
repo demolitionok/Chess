@@ -17,7 +17,6 @@ public class Knight : Figure
             var direction = new List<(int, int)>();
             result.Add(direction);
         }
-      //(2, -1), (2, 1), (-2, -1), (-2, 1), (1, 2), (1, -2), (-1, 2), (-1, -2)
         for (int k = 1; k < size.Item1; k++)
         {
             result[0].Add((2,1));
