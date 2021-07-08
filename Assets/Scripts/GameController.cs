@@ -9,4 +9,9 @@ public static class GameController
     public static (int, int)? selectedCoords;
     public static OnTrySelectCoords OnTrySelectCoords;
     public static Side currentSide = Side.White;
+
+    public static Cell GetCellByCoords((int,int) coords)
+    {
+        return CellsGameObjects[coords.Item1, coords.Item2].GetComponent<Cell>();
+    }
 }

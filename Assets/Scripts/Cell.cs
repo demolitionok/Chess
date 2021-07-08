@@ -10,5 +10,6 @@ public enum Side
 
 public class Cell : MonoBehaviour
 {
+    public Figure CellFigure;
     public Side? State;
 }

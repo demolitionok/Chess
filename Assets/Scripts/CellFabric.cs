@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public static class CellFabric
 {
-    public static Cell CreateCell(GameObject cellGameObject, (int, int) coords)
+    public static void CreateCell(GameObject cellGameObject, (int, int) coords)//!coords should be written in (y, x) format
     {
         var cell = cellGameObject.AddComponent<Cell>();
         cellGameObject.GetComponent<Button>().onClick.AddListener(() =>
@@ -16,6 +16,5 @@ public static class CellFabric
             GameController.OnTrySelectCoords.Invoke(coords);
         });
         GameController.CellsGameObjects[coords.Item1, coords.Item2] = cellGameObject;
-        return cell;
     }
 }

@@ -38,7 +38,7 @@ public class Board : MonoBehaviour
             for (int x = 0; x < GameController.CellsGameObjects.GetLength(1); x++)
             {
                 GameObject cellGameObject = Instantiate(CellPrefab, new Vector3(x*cellWidth + Offset, -y*cellHeight - Offset), Quaternion.identity);
-                cellGameObject.transform.SetParent(Canvas.transform, false);
+                cellGameObject.transform.SetParent(gameObject.transform, false);
                 
                 CellFabric.CreateCell(cellGameObject, (y, x));
                 
@@ -48,8 +48,6 @@ public class Board : MonoBehaviour
 
                 var cell = cellGameObject.GetComponent<Cell>();
                 cell.State = null;
-                //cell.x = x;
-                //cell.y = y;
                 if (x <= 7 && y <= 1)
                 {
                     cell.State = Side.Black;
@@ -63,9 +61,9 @@ public class Board : MonoBehaviour
             }
         }
     }
-    public void TrySelectCoords((int, int) coords)
+    public void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
     {
-        var cell = GameController.CellsGameObjects[coords.Item1, coords.Item2].GetComponent<Cell>();
+        var cell = GameController.GetCellByCoords(coords);
         if (GameController.selectedCoords == null)
         {
             if (GameController.currentSide == cell.State)
