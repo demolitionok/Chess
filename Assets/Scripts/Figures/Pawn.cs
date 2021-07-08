@@ -5,12 +5,13 @@ using UnityEngine;
 public class Pawn : Figure
 {
     public bool IsMoved;
-    public List<(int, int)> GetMovements(Side side)
+
+    public Pawn(string name):base(name)
     {
-        if (side == Side.White)
-        {
-            return new List<(int, int)>{(0, 1)};
-        }
-        return new List<(int, int)>{(0, -1)};
+    }
+
+    public override List<(int, int)> GetRelativeMoves()
+    {
+        return new List<(int, int)>{(1, 0)};
     }
 }

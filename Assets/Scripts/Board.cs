@@ -18,14 +18,18 @@ public class Board : MonoBehaviour
         {
             for (int x = 0; x < GameController.CellsGameObjects.GetLength(1); x++)
             {
-                Debug.Log("1111111");
-                var curCell = GameController.CellsGameObjects[y, x].GetComponent<Cell>();
+                var curCell = GameController.GetCellByCoords((y, x));
+
+                var t = GameController.CellsGameObjects[y, x].transform.GetChild(0);
+                t.gameObject.GetComponent<Text>().text = $" {curCell.State}";
+                t.gameObject.GetComponent<Text>().text += $"\n {x}, {y}";
+                if(curCell.Figure != null) 
+                    t.gameObject.GetComponent<Text>().text += $"\n {curCell.Figure.Name}";
+                
                 
                 if (GameController.selectedCoords == (y, x))
                 {
-                    Debug.Log("33333333");
-                    var text = GameController.CellsGameObjects[y, x].transform.GetChild(0);
-                    GameController.CellsGameObjects[y, x].transform.GetChild(0).gameObject.GetComponent<Text>().text = "MAYOT KRSER";
+                    Debug.Log("correct click!");
                 }
             }
         }
@@ -44,20 +48,23 @@ public class Board : MonoBehaviour
                 
                 cellGameObject = GameController.CellsGameObjects[y, x];
                 var text = cellGameObject.transform.GetChild(0);//kostyl)
-                text.gameObject.GetComponent<Text>().text = $"{x}, {y}";
+                //text.gameObject.GetComponent<Text>().text = $"{x}, {y}";
 
                 var cell = cellGameObject.GetComponent<Cell>();
                 cell.State = null;
-                if (x <= 7 && y <= 1)
+                if (y <= 1)
                 {
                     cell.State = Side.Black;
                 }
-                else if (x <= 7 && y >= 6)
+                else if (y >= 6)
                 {
                     cell.State = Side.White;
                 }
 
-                text.gameObject.GetComponent<Text>().text += $" {cellGameObject.GetComponent<Cell>().State}";
+                if (y == 1 || y == 6)
+                {
+                    cell.Figure = new Pawn("Pawn");
+                }
             }
         }
     }
@@ -83,7 +90,11 @@ public class Board : MonoBehaviour
             }
             else
             {
-                //Move();
+                var possibleMovements = GameController.GetPossibleMoves(GameController.selectedCoords.Value);
+                if (possibleMovements.Contains(coords))
+                {
+                    GameController.MoveFigure(GameController.selectedCoords.Value, coords);
+                }
             }
         }
         UpdateBoard();
