@@ -12,6 +12,7 @@ public class Board : MonoBehaviour
     private float cellHeight;
     public float Offset;
 
+
     private void GenerateBoard()
     {
         var xSize = GameController.CellsGameObjects.GetLength(1);
@@ -64,6 +65,7 @@ public class Board : MonoBehaviour
         cellWidth = CellPrefab.GetComponent<RectTransform>().rect.width;
         cellHeight = CellPrefab.GetComponent<RectTransform>().rect.height;
         GenerateBoard();
+        GameController.UpdateBoard();
     }
 
     void Update()
