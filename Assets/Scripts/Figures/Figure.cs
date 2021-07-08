@@ -7,7 +7,7 @@ public abstract class Figure
     //TODO bool CanMove(Cell d)
     //TODO List<cell> movements
     public string Name;
-    public abstract List<(int, int)> GetRelativeMoves();//!should be written in (x, y) format
+    public abstract List<List<(int, int)>> GetRelativeMoves((int, int) size);//!should be written in (x, y) format
 
     public Figure(string name)
     {

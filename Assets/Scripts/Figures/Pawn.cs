@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class Pawn : Figure
@@ -10,8 +11,8 @@ public class Pawn : Figure
     {
     }
 
-    public override List<(int, int)> GetRelativeMoves()
+    public override List<List<(int, int)>> GetRelativeMoves((int, int) size)
     {
-        return new List<(int, int)>{(1, 0)};
+        return new List<List<(int, int)>>{new List<(int, int)>{(1, 0)}};
     }
 }

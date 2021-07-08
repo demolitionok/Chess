@@ -14,17 +14,20 @@ public class Board : MonoBehaviour
 
     private void GenerateBoard()
     {
-        for (int y = 0; y < GameController.CellsGameObjects.GetLength(0); y++)
+        var xSize = GameController.CellsGameObjects.GetLength(1);
+        var ySize = GameController.CellsGameObjects.GetLength(0);
+        for (int y = 0; y < ySize; y++)
         {
-            for (int x = 0; x < GameController.CellsGameObjects.GetLength(1); x++)
+            for (int x = 0; x < xSize; x++)
             {
-                GameObject cellGameObject = Instantiate(CellPrefab, new Vector3(x*cellWidth + Offset, -y*cellHeight - Offset), Quaternion.identity);
+                GameObject cellGameObject = Instantiate(CellPrefab,
+                    new Vector3(x * cellWidth + Offset, -y * cellHeight - Offset), Quaternion.identity);
                 cellGameObject.transform.SetParent(gameObject.transform, false);
-                
+
                 CellFabric.CreateCell(cellGameObject, (y, x));
-                
+
                 cellGameObject = GameController.CellsGameObjects[y, x];
-                var text = cellGameObject.transform.GetChild(0);//kostyl)
+                var text = cellGameObject.transform.GetChild(0); //kostyl)
                 //text.gameObject.GetComponent<Text>().text = $"{x}, {y}";
 
                 var cell = cellGameObject.GetComponent<Cell>();
@@ -42,6 +45,15 @@ public class Board : MonoBehaviour
                 {
                     cell.Figure = new Pawn("Pawn");
                 }
+
+                if (
+                    y == 0 && (x == 0 || x == xSize - 1)
+                    ||
+                    y == ySize - 1 && (x == 0 || x == xSize - 1)
+                )
+                {
+                    cell.Figure = new Tower("tower");
+                }
             }
         }
     }
@@ -52,8 +64,8 @@ public class Board : MonoBehaviour
         cellWidth = CellPrefab.GetComponent<RectTransform>().rect.width;
         cellHeight = CellPrefab.GetComponent<RectTransform>().rect.height;
         GenerateBoard();
-        
     }
+
     void Update()
     {
     }

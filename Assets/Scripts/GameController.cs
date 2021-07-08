@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +16,7 @@ public static class GameController
     public static Cell GetCellByCoords((int,int) coords)//!coords should be written in (y, x) format
     {
         return CellsGameObjects[coords.Item1, coords.Item2].GetComponent<Cell>();
+        
     }
 
     public static void MoveFigure((int, int) from, (int, int) to)
@@ -28,8 +31,14 @@ public static class GameController
     
     public static bool CanMove((int, int) coords)
     {
-        if (GetCellByCoords(coords).State == null)
-            return true;
+        try
+        {
+            if (GetCellByCoords(coords).State == null)
+                return true;
+        }
+        catch (IndexOutOfRangeException e)
+        {
+        }
         return false;
     }
     
@@ -37,11 +46,24 @@ public static class GameController
     {
         var selectedFigure = GetCellByCoords(selectedFigureCoords).Figure;
         var result = new List<(int, int)>();
-        foreach (var movement in selectedFigure.GetRelativeMoves())
+        foreach (var direction in selectedFigure
+            .GetRelativeMoves(
+                (CellsGameObjects.GetLength(0),CellsGameObjects.GetLength(1))
+            )
+        )
         {
-            var temp = (movement.Item1 + selectedFigureCoords.Item1, movement.Item2 + selectedFigureCoords.Item2);
-            if (CanMove(temp))
-                result.Add(temp);
+            foreach (var movement in direction)
+            {
+                var resultCoords = (movement.Item1 + selectedFigureCoords.Item1, movement.Item2 + selectedFigureCoords.Item2);
+                if (CanMove(resultCoords))
+                {
+                    result.Add(resultCoords);
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
 
         return result;
