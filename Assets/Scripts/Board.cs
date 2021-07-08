@@ -12,29 +12,6 @@ public class Board : MonoBehaviour
     private float cellHeight;
     public float Offset;
 
-    public void UpdateBoard()
-    {
-        for (int y = 0; y < GameController.CellsGameObjects.GetLength(0); y++)
-        {
-            for (int x = 0; x < GameController.CellsGameObjects.GetLength(1); x++)
-            {
-                var curCell = GameController.GetCellByCoords((y, x));
-
-                var t = GameController.CellsGameObjects[y, x].transform.GetChild(0);
-                t.gameObject.GetComponent<Text>().text = $" {curCell.State}";
-                t.gameObject.GetComponent<Text>().text += $"\n {x}, {y}";
-                if(curCell.Figure != null) 
-                    t.gameObject.GetComponent<Text>().text += $"\n {curCell.Figure.Name}";
-                
-                
-                if (GameController.selectedCoords == (y, x))
-                {
-                    Debug.Log("correct click!");
-                }
-            }
-        }
-    }
-
     private void GenerateBoard()
     {
         for (int y = 0; y < GameController.CellsGameObjects.GetLength(0); y++)
@@ -68,41 +45,10 @@ public class Board : MonoBehaviour
             }
         }
     }
-    public void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
-    {
-        var cell = GameController.GetCellByCoords(coords);
-        if (GameController.selectedCoords == null)
-        {
-            if (GameController.currentSide == cell.State)
-            {
-                GameController.selectedCoords = coords;
-            }
-        }
-        else
-        {
-            if (GameController.selectedCoords == coords)
-            {
-                GameController.selectedCoords = null;
-            }
-            else if (GameController.currentSide == cell.State)
-            {
-                GameController.selectedCoords = coords;
-            }
-            else
-            {
-                var possibleMovements = GameController.GetPossibleMoves(GameController.selectedCoords.Value);
-                if (possibleMovements.Contains(coords))
-                {
-                    GameController.MoveFigure(GameController.selectedCoords.Value, coords);
-                }
-            }
-        }
-        UpdateBoard();
-    }
 
     void Start()
     {
-        GameController.OnTrySelectCoords += TrySelectCoords;
+        GameController.OnTrySelectCoords += GameController.TrySelectCoords;
         cellWidth = CellPrefab.GetComponent<RectTransform>().rect.width;
         cellHeight = CellPrefab.GetComponent<RectTransform>().rect.height;
         GenerateBoard();

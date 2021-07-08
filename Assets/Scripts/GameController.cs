@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public delegate void OnTrySelectCoords((int, int) coords);
 public static class GameController
@@ -43,5 +44,59 @@ public static class GameController
         }
 
         return result;
+    }
+
+    public static void UpdateBoard()
+    {
+        for (int y = 0; y < GameController.CellsGameObjects.GetLength(0); y++)
+        {
+            for (int x = 0; x < GameController.CellsGameObjects.GetLength(1); x++)
+            {
+                var curCell = GameController.GetCellByCoords((y, x));
+
+                var t = GameController.CellsGameObjects[y, x].transform.GetChild(0);
+                t.gameObject.GetComponent<Text>().text = $" {curCell.State}";
+                t.gameObject.GetComponent<Text>().text += $"\n {x}, {y}";
+                if(curCell.Figure != null) 
+                    t.gameObject.GetComponent<Text>().text += $"\n {curCell.Figure.Name}";
+                
+                
+                if (GameController.selectedCoords == (y, x))
+                {
+                    Debug.Log("correct click!");
+                }
+            }
+        }
+    }
+    public static void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
+    {
+        var cell = GameController.GetCellByCoords(coords);
+        if (GameController.selectedCoords == null)
+        {
+            if (GameController.currentSide == cell.State)
+            {
+                GameController.selectedCoords = coords;
+            }
+        }
+        else
+        {
+            if (GameController.selectedCoords == coords)
+            {
+                GameController.selectedCoords = null;
+            }
+            else if (GameController.currentSide == cell.State)
+            {
+                GameController.selectedCoords = coords;
+            }
+            else
+            {
+                var possibleMovements = GameController.GetPossibleMoves(GameController.selectedCoords.Value);
+                if (possibleMovements.Contains(coords))
+                {
+                    GameController.MoveFigure(GameController.selectedCoords.Value, coords);
+                }
+            }
+        }
+        UpdateBoard();
     }
 }
