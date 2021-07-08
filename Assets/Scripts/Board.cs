@@ -44,7 +44,7 @@ public class Board : MonoBehaviour
 
                 if (y == 1 || y == 6)
                 {
-                    cell.Figure = new Pawn("Pawn");
+                    cell.Figure = new Pawn("pawn");
                 }
 
                 if (
@@ -54,6 +54,14 @@ public class Board : MonoBehaviour
                 )
                 {
                     cell.Figure = new Tower("tower");
+                }
+                if (
+                    y == 0 && (x == 2 || x == xSize - 3)
+                    ||
+                    y == ySize - 1 && (x == 2 || x == xSize - 3)
+                )
+                {
+                    cell.Figure = new Bishop("bishop");
                 }
             }
         }

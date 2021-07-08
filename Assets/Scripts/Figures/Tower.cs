@@ -28,9 +28,6 @@ public class Tower : Figure
             result[1].Add((k,0));
             result[3].Add((-k,0));
         }
-
-        //var result = new List<(int, int)>();
-        //return new List<(int, int)>{(1, 0)};
         return result;
     }
 }
