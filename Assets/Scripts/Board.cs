@@ -69,6 +69,14 @@ public class Board : MonoBehaviour
                 {
                     cell.Figure = new Queen("queen");
                 }
+                if (
+                    y == 0 && (x == 1 || x == xSize - 2)
+                    ||
+                    y == ySize - 1 && (x == 1 || x == xSize - 2)
+                )
+                {
+                    cell.Figure = new Knight("knight");
+                }
             }
         }
     }
