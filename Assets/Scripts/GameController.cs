@@ -74,7 +74,7 @@ public static class GameController
         }
         return false;
     }
-
+    
     public static List<(int, int)> GetPossibleAttacks((int, int) selectedFigureCoords)
     {
         var selectedFigure = GetCellByCoords(selectedFigureCoords).Figure;
@@ -107,7 +107,7 @@ public static class GameController
         }
         return result;
     }
-
+    
     public static List<(int, int)> GetPossibleMoves((int, int) selectedFigureCoords)
     {
         var selectedFigure = GetCellByCoords(selectedFigureCoords).Figure;
@@ -128,7 +128,16 @@ public static class GameController
                 var resultCoords = (movement.Item1 + selectedFigureCoords.Item1, movement.Item2 + selectedFigureCoords.Item2);
                 if (CanMove(resultCoords))
                 {
-                    result.Add(resultCoords);
+                    //virtual movement
+                    MoveFigure(selectedFigureCoords, resultCoords);
+                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                    if (!IsCheck(currentSide == Side.White ? Side.Black : Side.White))
+                    {
+                        result.Add(resultCoords);
+                    }
+                    MoveFigure(resultCoords, selectedFigureCoords);
+                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                    
                 }
                 else
                 {
@@ -183,6 +192,28 @@ public static class GameController
         }
     }
 
+    public static bool IsCheck(Side checkSide)
+    {
+        for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
+        {
+            for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
+            {
+                var curCell = GetCellByCoords((y, x));
+                
+                if (curCell.State != checkSide && curCell.State != null)
+                {
+                    foreach (var possibleAttack in GetPossibleAttacks((y, x)))
+                    {
+                        if (GetCellByCoords(possibleAttack).Figure.GetType() == typeof(King)) 
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     public static void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
     {
