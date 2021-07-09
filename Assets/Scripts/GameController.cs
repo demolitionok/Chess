@@ -45,15 +45,54 @@ public static class GameController
     {
         try
         {
-            if (GetCellByCoords(coords).State == null)
-                return true;
+            return GetCellByCoords(coords).State == null;
         }
         catch (IndexOutOfRangeException e)
         {
         }
         return false;
     }
-    
+    public static bool CanAttack((int, int) coords)
+    {
+        try
+        {
+            return GetCellByCoords(coords).State != currentSide && GetCellByCoords(coords).State != null;
+        }
+        catch (IndexOutOfRangeException e)
+        {
+        }
+        return false;
+    }
+
+    public static List<(int, int)> GetPossibleAttacks((int, int) selectedFigureCoords)
+    {
+        var selectedFigure = GetCellByCoords(selectedFigureCoords).Figure;
+        var relativeAttacks = selectedFigure.GetRelativeAttacks((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
+        if (selectedFigure.GetType() == typeof(Pawn) && GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
+        {
+            if (GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
+            {
+                relativeAttacks[0][0] = (-relativeAttacks[0][0].Item1, relativeAttacks[0][0].Item2);
+                relativeAttacks[1][0] = (-relativeAttacks[0][0].Item1, relativeAttacks[0][0].Item2);
+            }
+        }
+
+        var result = new List<(int, int)>();
+        foreach (var direction in relativeAttacks)
+        {
+            foreach (var movement in direction)
+            {
+                var resultCoords = (movement.Item1 + selectedFigureCoords.Item1, movement.Item2 + selectedFigureCoords.Item2);
+                if (CanAttack(resultCoords))
+                {
+                    result.Add(resultCoords);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
     public static List<(int, int)> GetPossibleMoves((int, int) selectedFigureCoords)
     {
         var selectedFigure = GetCellByCoords(selectedFigureCoords).Figure;
@@ -139,8 +178,6 @@ public static class GameController
         }
         else
         {
-            var possibleMovements = GetPossibleMoves(selectedCoords.Value);
-            RenderMoves(possibleMovements);
             if (selectedCoords == coords)
             {
                 selectedCoords = null;
@@ -149,20 +186,24 @@ public static class GameController
             {
                 selectedCoords = coords;
             }
+            else if (cell.State != null)
+            {
+                var possibleAttacks = GetPossibleAttacks(selectedCoords.Value);
+                if (possibleAttacks.Contains(coords))
+                {
+                    MoveFigure(selectedCoords.Value, coords);
+                    selectedCoords = null;
+                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                }
+            }
             else
             {
+                var possibleMovements = GetPossibleMoves(selectedCoords.Value);
                 if (possibleMovements.Contains(coords))
                 {
                     MoveFigure(selectedCoords.Value, coords);
                     selectedCoords = null;
-                    if (currentSide == Side.White)
-                    {
-                        currentSide = Side.Black;
-                    }
-                    else
-                    {
-                        currentSide = Side.White;
-                    }
+                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }
             }
         }
