@@ -19,6 +19,18 @@ public static class GameController
         
     }
 
+    public static void RenderMoves(List<(int, int)> possibleMoves)
+    {
+        foreach (var move in possibleMoves)
+        {
+            var curCell = GetCellByCoords(move);
+            var colors = curCell.gameObject.GetComponent<Button>().colors;
+            colors.normalColor = Color.blue;
+            colors.selectedColor = Color.blue;
+            curCell.gameObject.GetComponent<Button>().colors = colors;
+        }
+    }
+
     public static void MoveFigure((int, int) from, (int, int) to)
     {
         var s = GetCellByCoords(from).State;
@@ -100,6 +112,15 @@ public static class GameController
                 }
             }
         }
+
+        try
+        {
+            RenderMoves(GetPossibleMoves(selectedCoords.Value));
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
     public static void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
     {
@@ -113,6 +134,8 @@ public static class GameController
         }
         else
         {
+            var possibleMovements = GetPossibleMoves(selectedCoords.Value);
+            RenderMoves(possibleMovements);
             if (selectedCoords == coords)
             {
                 selectedCoords = null;
@@ -123,7 +146,6 @@ public static class GameController
             }
             else
             {
-                var possibleMovements = GetPossibleMoves(selectedCoords.Value);
                 if (possibleMovements.Contains(coords))
                 {
                     MoveFigure(selectedCoords.Value, coords);
