@@ -19,6 +19,17 @@ public static class GameController
         
     }
 
+    public static void RenderAttacks(List<(int, int)> possibleAttacks)
+    {
+        foreach (var attack in possibleAttacks)
+        {
+            var curCell = GetCellByCoords(attack);
+            var colors = curCell.gameObject.GetComponent<Button>().colors;
+            colors.normalColor = Color.red;
+            colors.selectedColor = Color.red;
+            curCell.gameObject.GetComponent<Button>().colors = colors;
+        }
+    }
     public static void RenderMoves(List<(int, int)> possibleMoves)
     {
         foreach (var move in possibleMoves)
@@ -73,7 +84,7 @@ public static class GameController
             if (GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
             {
                 relativeAttacks[0][0] = (-relativeAttacks[0][0].Item1, relativeAttacks[0][0].Item2);
-                relativeAttacks[1][0] = (-relativeAttacks[0][0].Item1, relativeAttacks[0][0].Item2);
+                relativeAttacks[1][0] = (-relativeAttacks[1][0].Item1, relativeAttacks[1][0].Item2);
             }
         }
 
@@ -83,9 +94,13 @@ public static class GameController
             foreach (var movement in direction)
             {
                 var resultCoords = (movement.Item1 + selectedFigureCoords.Item1, movement.Item2 + selectedFigureCoords.Item2);
-                if (CanAttack(resultCoords))
+                if (CanAttack(resultCoords)) 
                 {
                     result.Add(resultCoords);
+                    break;
+                }
+                else if (!CanMove(resultCoords))
+                {
                     break;
                 }
             }
@@ -160,12 +175,15 @@ public static class GameController
         try
         {
             RenderMoves(GetPossibleMoves(selectedCoords.Value));
+            RenderAttacks(GetPossibleAttacks(selectedCoords.Value));
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
         }
     }
+
+
     public static void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
     {
         var cell = GetCellByCoords(coords);
