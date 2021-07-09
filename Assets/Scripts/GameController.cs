@@ -11,7 +11,7 @@ public static class GameController
     public static GameObject[,] CellsGameObjects = new GameObject[8,8];
     public static (int, int)? selectedCoords;
     public static OnTrySelectCoords OnTrySelectCoords;
-    public static Side currentSide = Side.Black;
+    public static Side currentSide = Side.White;
 
     public static Cell GetCellByCoords((int,int) coords)//!coords should be written in (y, x) format
     {
@@ -57,12 +57,17 @@ public static class GameController
     public static List<(int, int)> GetPossibleMoves((int, int) selectedFigureCoords)
     {
         var selectedFigure = GetCellByCoords(selectedFigureCoords).Figure;
+        var relativeMoves = selectedFigure.GetRelativeMoves((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
+        if (selectedFigure.GetType() == typeof(Pawn) && GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
+        {
+            if (GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
+            {
+                relativeMoves[0][0] = (-1, 0);
+            }
+        }
+
         var result = new List<(int, int)>();
-        foreach (var direction in selectedFigure
-            .GetRelativeMoves(
-                (CellsGameObjects.GetLength(0),CellsGameObjects.GetLength(1))
-            )
-        )
+        foreach (var direction in relativeMoves)
         {
             foreach (var movement in direction)
             {
@@ -150,6 +155,14 @@ public static class GameController
                 {
                     MoveFigure(selectedCoords.Value, coords);
                     selectedCoords = null;
+                    if (currentSide == Side.White)
+                    {
+                        currentSide = Side.Black;
+                    }
+                    else
+                    {
+                        currentSide = Side.White;
+                    }
                 }
             }
         }
