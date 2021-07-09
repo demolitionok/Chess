@@ -8,7 +8,10 @@ public class King : Figure
     public King(string name):base(name)
     {
     }
-
+    public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)
+    {
+        return GetRelativeMoves(size);
+    }
     public override List<List<(int, int)>> GetRelativeMoves((int, int) size)
     {
         var result = new List<List<(int, int)>>();
