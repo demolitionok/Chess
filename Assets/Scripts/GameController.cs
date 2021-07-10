@@ -77,67 +77,95 @@ public static class GameController
     
     public static List<(int, int)> GetPossibleAttacks((int, int) selectedFigureCoords)
     {
-        var selectedFigure = GetCellByCoords(selectedFigureCoords).Figure;
-        var relativeAttacks = selectedFigure.GetRelativeAttacks((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
-        if (selectedFigure.GetType() == typeof(Pawn) && GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
-        {
-            if (GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
-            {
-                relativeAttacks[0][0] = (-relativeAttacks[0][0].Item1, relativeAttacks[0][0].Item2);
-                relativeAttacks[1][0] = (-relativeAttacks[1][0].Item1, relativeAttacks[1][0].Item2);
-            }
-        }
-
         var result = new List<(int, int)>();
-        foreach (var direction in relativeAttacks)
+        foreach (var globalDirection in GetFigureGlobalAttackCoords(selectedFigureCoords))
         {
-            foreach (var movement in direction)
+            foreach (var globalCoords in globalDirection)
             {
-                var resultCoords = (movement.Item1 + selectedFigureCoords.Item1, movement.Item2 + selectedFigureCoords.Item2);
-                if (CanAttack(resultCoords)) 
-                {
-                    result.Add(resultCoords);
+                 if (CanAttack(globalCoords))
+                 {
+                    result.Add(globalCoords);
+                 } 
+                 if (!CanMove(globalCoords))
+                 {
                     break;
-                }
-                else if (!CanMove(resultCoords))
-                {
-                    break;
-                }
+                 }
             }
         }
+        
         return result;
     }
+
     
-    public static List<(int, int)> GetPossibleMoves((int, int) selectedFigureCoords)
+
+    public static List<List<(int, int)>> ConvertRelativeDirectionsToGlobal(List<List<(int, int)>> relativeDirections, (int, int) pivotCoords)
     {
-        var selectedFigure = GetCellByCoords(selectedFigureCoords).Figure;
-        var relativeMoves = selectedFigure.GetRelativeMoves((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
-        if (selectedFigure.GetType() == typeof(Pawn) && GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
+        var result = new List<List<(int, int)>>();
+        foreach (var direction in relativeDirections)
         {
-            if (GetCellByCoords(selectedFigureCoords).GetComponent<Cell>().State == Side.White)
+            var globalDirection = new List<(int,int)>();
+            foreach (var move in direction) 
             {
-                relativeMoves[0][0] = (-1, 0);
+                globalDirection.Add((move.Item1 + pivotCoords.Item1, move.Item2 + pivotCoords.Item2));
             }
+            result.Add(globalDirection);
         }
 
-        var result = new List<(int, int)>();
-        foreach (var direction in relativeMoves)
+        return result;
+    }
+
+    public static (int,int) ReverseY((int,int) YXcoord)
+    {
+        return (-YXcoord.Item1, YXcoord.Item2);
+    }
+
+    public static List<List<(int, int)>> GetFigureGlobalMovementCoords((int, int) selectedFigureCoords)
+    {
+        var selectedCell = GetCellByCoords(selectedFigureCoords);
+        var selectedFigure = selectedCell.Figure;
+        var relativeDirections = selectedFigure.GetRelativeMoves((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
+        if (selectedFigure.GetType() == typeof(Pawn) && selectedCell.State == Side.White)
         {
-            foreach (var movement in direction)
+            for(int y = 0; y < relativeDirections.Count; y++)
             {
-                var resultCoords = (movement.Item1 + selectedFigureCoords.Item1, movement.Item2 + selectedFigureCoords.Item2);
-                if (CanMove(resultCoords))
+                for(int x = 0; x < relativeDirections[y].Count; x++)
+                {
+                    relativeDirections[y][x] = ReverseY(relativeDirections[y][x]);
+                }
+            }
+        }
+        return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
+    }
+    public static List<List<(int, int)>> GetFigureGlobalAttackCoords((int, int) selectedFigureCoords)
+    {
+        var selectedCell = GetCellByCoords(selectedFigureCoords);
+        var selectedFigure = selectedCell.Figure;
+        var relativeDirections = selectedFigure.GetRelativeAttacks((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
+        if (selectedFigure.GetType() == typeof(Pawn) && selectedCell.State == Side.White)
+        {
+            for(int y = 0; y < relativeDirections.Count; y++)
+            {
+                for(int x = 0; x < relativeDirections[y].Count; x++)
+                {
+                    relativeDirections[y][x] = ReverseY(relativeDirections[y][x]);
+                }
+            }
+        }
+        return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
+    }
+
+    public static List<(int, int)> GetPossibleMoves((int, int) selectedFigureCoords)
+    {
+        var result = new List<(int, int)>();
+        foreach (var globalDirection in GetFigureGlobalMovementCoords(selectedFigureCoords))
+        {
+            foreach (var globalCoords in globalDirection)
+            {
+                if (CanMove(globalCoords))
                 {
                     //virtual movement
-                    MoveFigure(selectedFigureCoords, resultCoords);
-                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
-                    if (!IsCheck(currentSide == Side.White ? Side.Black : Side.White))
-                    {
-                        result.Add(resultCoords);
-                    }
-                    MoveFigure(resultCoords, selectedFigureCoords);
-                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
-                    
+                    result.Add(globalCoords);
+                
                 }
                 else
                 {
@@ -145,9 +173,14 @@ public static class GameController
                 }
             }
         }
-
+        
         return result;
     }
+
+    /*public static List<(int, int)> GetActualMoves((int, int) selectedFigureCoords)
+    {
+        
+    }*/
 
     public static void UpdateBoard()
     {
@@ -192,26 +225,30 @@ public static class GameController
         }
     }
 
-    public static bool IsCheck(Side checkSide)
+    public static bool IsCheck()
     {
+        currentSide = currentSide == Side.White ? Side.Black : Side.White;
         for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
         {
             for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
             {
                 var curCell = GetCellByCoords((y, x));
                 
-                if (curCell.State != checkSide && curCell.State != null)
+                if (curCell.State == currentSide && curCell.State != null)
                 {
-                    foreach (var possibleAttack in GetPossibleAttacks((y, x)))
+                    var possibleAttacks = GetPossibleAttacks((y, x));
+                    foreach (var possibleAttack in possibleAttacks)
                     {
                         if (GetCellByCoords(possibleAttack).Figure.GetType() == typeof(King)) 
                         {
+                            currentSide = currentSide == Side.White ? Side.Black : Side.White;
                             return true;
                         }
                     }
                 }
             }
         }
+        currentSide = currentSide == Side.White ? Side.Black : Side.White;
         return false;
     }
 
