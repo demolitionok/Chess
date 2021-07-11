@@ -28,8 +28,6 @@ public class Board : MonoBehaviour
                 CellFabric.RegisterCell(cellGameObject, (y, x));
 
                 cellGameObject = GameController.CellsGameObjects[y, x];
-                var text = cellGameObject.transform.GetChild(0); //kostyl)
-                //text.gameObject.GetComponent<Text>().text = $"{x}, {y}";
 
                 var cell = cellGameObject.GetComponent<Cell>();
                 cell.State = null;
@@ -37,14 +35,17 @@ public class Board : MonoBehaviour
                 {
                     cell.State = Side.Black;
                 }
-                else if (y >= 6)
+                if (y >= 6)
                 {
                     cell.State = Side.White;
                 }
 
                 if (y == 1 || y == 6)
                 {
-                    cell.Figure = new Pawn("pawn");
+                    cell.Figure = new Pawn(
+                        "pawn",
+                        cell.State == Side.White ? Resources.Load<Sprite>("wpawn") : Resources.Load<Sprite>("bpawn")
+                    );
                 }
 
                 if (
@@ -53,7 +54,10 @@ public class Board : MonoBehaviour
                     y == ySize - 1 && (x == 0 || x == xSize - 1)
                 )
                 {
-                    cell.Figure = new Tower("tower");
+                    cell.Figure = new Tower(
+                        "tower",
+                        cell.State == Side.White ? Resources.Load<Sprite>("wtower") : Resources.Load<Sprite>("btower")
+                    );
                 }
                 if (
                     y == 0 && (x == 2 || x == xSize - 3)
@@ -61,13 +65,19 @@ public class Board : MonoBehaviour
                     y == ySize - 1 && (x == 2 || x == xSize - 3)
                 )
                 {
-                    cell.Figure = new Bishop("bishop");
+                    cell.Figure = new Bishop(
+                        "bishop",
+                        cell.State == Side.White ? Resources.Load<Sprite>("wbishop") : Resources.Load<Sprite>("bbishop")
+                    );
                 }
                 if (
                     (y == 0 || y == ySize - 1) && (x == 3 || x == xSize - 5)
                 )
                 {
-                    cell.Figure = new Queen("queen");
+                    cell.Figure = new Queen(
+                        "queen",
+                        cell.State == Side.White ? Resources.Load<Sprite>("wqueen") : Resources.Load<Sprite>("bqueen")
+                    );
                 }
                 if (
                     y == 0 && (x == 1 || x == xSize - 2)
@@ -75,17 +85,24 @@ public class Board : MonoBehaviour
                     y == ySize - 1 && (x == 1 || x == xSize - 2)
                 )
                 {
-                    cell.Figure = new Knight("knight");
+                    cell.Figure = new Knight(
+                        "knight",
+                        cell.State == Side.White ? Resources.Load<Sprite>("wknight") : Resources.Load<Sprite>("bknight")
+                    );
                 }
                 if (
                     (y == 0 || y == ySize - 1) && (x == 4 || x == xSize - 4)
                 )
                 {
-                    cell.Figure = new King("king");
+                    cell.Figure = new King(
+                        "king",
+                        cell.State == Side.White ? Resources.Load<Sprite>("wking") : Resources.Load<Sprite>("bking")
+                    );
                 }
             }
         }
     }
+
 
     void Start()
     {

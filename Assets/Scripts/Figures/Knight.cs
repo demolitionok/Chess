@@ -5,7 +5,7 @@ using UnityEngine;
 public class Knight : Figure
 {
 
-    public Knight(string name):base(name)
+    public Knight(string name, Sprite sprite):base(name, sprite)
     {
     }
 

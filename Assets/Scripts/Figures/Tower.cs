@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Tower : Figure
 {
-    public Tower(string name):base(name)
+    public Tower(string name, Sprite sprite):base(name, sprite)
     {
     }
     

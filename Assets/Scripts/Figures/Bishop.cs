@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Bishop : Figure
 {
-    public Bishop(string name):base(name)
+    public Bishop(string name, Sprite sprite):base(name, sprite)
     {
     }
     

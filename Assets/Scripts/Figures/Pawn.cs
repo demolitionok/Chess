@@ -7,7 +7,7 @@ public class Pawn : Figure
 {
     public bool IsMoved = false;
 
-    public Pawn(string name):base(name)
+    public Pawn(string name, Sprite sprite):base(name, sprite)
     {
         OnMove += () => { IsMoved = true;};
     }

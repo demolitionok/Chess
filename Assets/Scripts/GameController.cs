@@ -241,6 +241,10 @@ public static class GameController
         textTranform.gameObject.GetComponent<Text>().text = textStr;
     }
 
+    public static void SetFigureImageByCoords((int, int) coords, Sprite sprite)
+    {
+        GetCellByCoords(coords).gameObject.GetComponent<Image>().sprite = sprite;
+    }
     public static void UpdateBoard()
     {
         for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
@@ -248,13 +252,21 @@ public static class GameController
             for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
             {
                 var curCell = GetCellByCoords((y, x));
-                SetCellInfoText((y,x));
+                //SetCellInfoText((y,x));
                 var curCellButton = curCell.gameObject.GetComponent<Button>();
                 ColorButton(curCellButton, selectedCoords == (y, x) ? Color.green : Color.white);
+                if (curCell.Figure != null) 
+                {
+                    SetFigureImageByCoords((y, x), curCell.Figure.Sprite);
+                }
+                else
+                {
+                    SetFigureImageByCoords((y, x), Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero));
+                }
             }
         }
 
-        try
+        try//throws exception only before first figure selection because selectedCoords = null
         {
             RenderMoves(GetActualMoves(selectedCoords.Value));
             RenderAttacks(GetActualAttacks(selectedCoords.Value));

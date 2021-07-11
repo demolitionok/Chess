@@ -5,7 +5,7 @@ using UnityEngine;
 public class King : Figure
 {
 
-    public King(string name):base(name)
+    public King(string name, Sprite sprite):base(name, sprite)
     {
     }
     public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)

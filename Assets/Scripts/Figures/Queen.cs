@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Queen : Figure
 {
-    public Queen(string name):base(name)
+    public Queen(string name, Sprite sprite):base(name, sprite)
     {
     }
     
