@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class Pawn : Figure
 {
-    public bool IsMoved;
+    public bool IsMoved = false;
 
     public Pawn(string name):base(name)
     {
+        OnMove += () => { IsMoved = true;};
     }
 
     public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)

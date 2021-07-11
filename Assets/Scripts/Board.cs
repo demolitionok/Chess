@@ -25,7 +25,7 @@ public class Board : MonoBehaviour
                     new Vector3(x * cellWidth + Offset, -y * cellHeight - Offset), Quaternion.identity);
                 cellGameObject.transform.SetParent(gameObject.transform, false);
 
-                CellFabric.CreateCell(cellGameObject, (y, x));
+                CellFabric.RegisterCell(cellGameObject, (y, x));
 
                 cellGameObject = GameController.CellsGameObjects[y, x];
                 var text = cellGameObject.transform.GetChild(0); //kostyl)

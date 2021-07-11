@@ -30,6 +30,7 @@ public static class GameController
             curCell.gameObject.GetComponent<Button>().colors = colors;
         }
     }
+    
     public static void RenderMoves(List<(int, int)> possibleMoves)
     {
         foreach (var move in possibleMoves)
@@ -96,9 +97,7 @@ public static class GameController
         
         return result;
     }
-
     
-
     public static List<List<(int, int)>> ConvertRelativeDirectionsToGlobal(List<List<(int, int)>> relativeDirections, (int, int) pivotCoords)
     {
         var result = new List<List<(int, int)>>();
@@ -125,13 +124,22 @@ public static class GameController
         var selectedCell = GetCellByCoords(selectedFigureCoords);
         var selectedFigure = selectedCell.Figure;
         var relativeDirections = selectedFigure.GetRelativeMoves((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
-        if (selectedFigure.GetType() == typeof(Pawn) && selectedCell.State == Side.White)
+        if (selectedFigure is Pawn pawnFig)
         {
-            for(int y = 0; y < relativeDirections.Count; y++)
+
+            if (!pawnFig.IsMoved)
             {
-                for(int x = 0; x < relativeDirections[y].Count; x++)
+                relativeDirections[0].Add((2, 0));
+            }
+
+            if (selectedCell.State == Side.White)
+            {
+                for (int y = 0; y < relativeDirections.Count; y++)
                 {
-                    relativeDirections[y][x] = ReverseY(relativeDirections[y][x]);
+                    for (int x = 0; x < relativeDirections[y].Count; x++)
+                    {
+                        relativeDirections[y][x] = ReverseY(relativeDirections[y][x]);
+                    }
                 }
             }
         }
@@ -286,30 +294,34 @@ public static class GameController
 
     public static void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
     {
-        var cell = GetCellByCoords(coords);
+        var nextCell = GetCellByCoords(coords);
+        
         if (selectedCoords == null)
         {
-            if (currentSide == cell.State)
+            if (currentSide == nextCell.State)
             {
                 selectedCoords = coords;
             }
         }
         else
         {
+            var currentCell = GetCellByCoords(selectedCoords.Value);
+            var currentFigure = currentCell.Figure;
             if (selectedCoords == coords)
             {
                 selectedCoords = null;
             }
-            else if (currentSide == cell.State)
+            else if (currentSide == nextCell.State)
             {
                 selectedCoords = coords;
             }
-            else if (cell.State != null)
+            else if (nextCell.State != null)
             {
                 var possibleAttacks = GetActualAttacks(selectedCoords.Value);
                 if (possibleAttacks.Contains(coords))
                 {
                     MoveFigure(selectedCoords.Value, coords);
+                    currentFigure.OnMove?.Invoke();
                     selectedCoords = null;
                     currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }
@@ -320,6 +332,7 @@ public static class GameController
                 if (actualMoves.Contains(coords))
                 {
                     MoveFigure(selectedCoords.Value, coords);
+                    currentFigure.OnMove?.Invoke();
                     selectedCoords = null;
                     currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }
