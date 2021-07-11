@@ -177,10 +177,20 @@ public static class GameController
         return result;
     }
 
-    /*public static List<(int, int)> GetActualMoves((int, int) selectedFigureCoords)
+    public static List<(int, int)> GetActualMoves((int, int) selectedFigureCoords)
     {
-        
-    }*/
+        var result = new List<(int, int)>();
+        foreach (var move in GetPossibleMoves(selectedFigureCoords))
+        {
+            MoveFigure(selectedFigureCoords, move);
+            if (!IsCheck())
+            {
+                result.Add(move);
+            }
+            MoveFigure(move, selectedFigureCoords);
+        }
+        return result;
+    }
 
     public static void UpdateBoard()
     {
@@ -216,7 +226,7 @@ public static class GameController
 
         try
         {
-            RenderMoves(GetPossibleMoves(selectedCoords.Value));
+            RenderMoves(GetActualMoves(selectedCoords.Value));
             RenderAttacks(GetPossibleAttacks(selectedCoords.Value));
         }
         catch (Exception e)
@@ -284,8 +294,8 @@ public static class GameController
             }
             else
             {
-                var possibleMovements = GetPossibleMoves(selectedCoords.Value);
-                if (possibleMovements.Contains(coords))
+                var actualMoves = GetActualMoves(selectedCoords.Value);
+                if (actualMoves.Contains(coords))
                 {
                     MoveFigure(selectedCoords.Value, coords);
                     selectedCoords = null;
