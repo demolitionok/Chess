@@ -85,6 +85,7 @@ public static class GameController
                  if (CanAttack(globalCoords))
                  {
                     result.Add(globalCoords);
+                    break;
                  } 
                  if (!CanMove(globalCoords))
                  {
@@ -192,6 +193,27 @@ public static class GameController
         return result;
     }
 
+    public static List<(int, int)> GetActualAttacks((int, int) selectedFigureCoords)
+    {
+        var result = new List<(int, int)>();
+        foreach (var move in GetPossibleAttacks(selectedFigureCoords))
+        {
+            var currentCell = GetCellByCoords(selectedFigureCoords);
+            var destinationCell = GetCellByCoords(move);
+            var destinationCellFigure = destinationCell.Figure;
+            var destinationCellState = destinationCell.State;
+            MoveFigure(selectedFigureCoords, move);
+            if (!IsCheck())
+            {
+                result.Add(move);
+            }
+            MoveFigure(move, selectedFigureCoords);
+            destinationCell.Figure = destinationCellFigure;
+            destinationCell.State = destinationCellState;
+        }
+        return result;
+    }
+
     public static void UpdateBoard()
     {
         for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
@@ -227,7 +249,7 @@ public static class GameController
         try
         {
             RenderMoves(GetActualMoves(selectedCoords.Value));
-            RenderAttacks(GetPossibleAttacks(selectedCoords.Value));
+            RenderAttacks(GetActualAttacks(selectedCoords.Value));
         }
         catch (Exception e)
         {
@@ -284,7 +306,7 @@ public static class GameController
             }
             else if (cell.State != null)
             {
-                var possibleAttacks = GetPossibleAttacks(selectedCoords.Value);
+                var possibleAttacks = GetActualAttacks(selectedCoords.Value);
                 if (possibleAttacks.Contains(coords))
                 {
                     MoveFigure(selectedCoords.Value, coords);
