@@ -222,6 +222,25 @@ public static class GameController
         return result;
     }
 
+    public static void ColorButton(Button button, Color color)
+    {
+        var colors = button.colors;
+        colors.normalColor = color;
+        colors.selectedColor = color;
+        button.colors = colors;
+    }
+
+    public static void SetCellInfoText((int, int) coords)
+    {
+        var cell = GetCellByCoords(coords);
+        var textTranform = cell.gameObject.transform.GetChild(0);
+        var textStr = $" {cell.State}";
+        textStr += $"\n {coords.Item2}, {coords.Item1}";
+        var figureName = cell.Figure == null ? "noFigure" : cell.Figure.Name;
+        textStr += $"\n {figureName}";
+        textTranform.gameObject.GetComponent<Text>().text = textStr;
+    }
+
     public static void UpdateBoard()
     {
         for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
@@ -229,28 +248,9 @@ public static class GameController
             for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
             {
                 var curCell = GetCellByCoords((y, x));
-
-                var t = CellsGameObjects[y, x].transform.GetChild(0);
-                t.gameObject.GetComponent<Text>().text = $" {curCell.State}";
-                t.gameObject.GetComponent<Text>().text += $"\n {x}, {y}";
-                if(curCell.Figure != null) 
-                    t.gameObject.GetComponent<Text>().text += $"\n {curCell.Figure.Name}";
-                
-                
-                if (selectedCoords == (y, x))
-                {
-                    var colors = curCell.gameObject.GetComponent<Button>().colors;
-                    colors.normalColor = Color.green;
-                    colors.selectedColor = Color.green;
-                    curCell.gameObject.GetComponent<Button>().colors = colors;
-                }
-                else
-                {
-                    var colors = curCell.gameObject.GetComponent<Button>().colors;
-                    colors.normalColor = Color.white;
-                    colors.selectedColor = Color.white;
-                    curCell.gameObject.GetComponent<Button>().colors = colors;
-                }
+                SetCellInfoText((y,x));
+                var curCellButton = curCell.gameObject.GetComponent<Button>();
+                ColorButton(curCellButton, selectedCoords == (y, x) ? Color.green : Color.white);
             }
         }
 
