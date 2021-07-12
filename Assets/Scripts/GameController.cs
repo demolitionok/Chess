@@ -304,6 +304,26 @@ public static class GameController
         return false;
     }
 
+    public static bool IsMate()
+    {
+        for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
+        {
+            for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
+            {
+                var curCell = GetCellByCoords((y, x));
+                
+                if (curCell.State == currentSide && curCell.State != null)
+                {
+                    if (GetActualAttacks((y, x)).Count != 0 || GetActualMoves((y, x)).Count != 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public static void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
     {
         var nextCell = GetCellByCoords(coords);
@@ -348,6 +368,12 @@ public static class GameController
                     selectedCoords = null;
                     currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }
+            }
+
+            if (IsMate())
+            {
+                string winnerSide = currentSide == Side.White ? "black" : "white";
+                Debug.Log($"Winner: {winnerSide}");
             }
         }
         UpdateBoard();
