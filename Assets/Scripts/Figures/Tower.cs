@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Tower : Figure
 {
-    public Tower(string name, Sprite sprite):base(name, sprite)
+    public Tower(string name, Side side):base(name, side)
     {
+        Sprite = side == Side.White ? Resources.Load<Sprite>("wtower") : Resources.Load<Sprite>("btower");
     }
     
     public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)

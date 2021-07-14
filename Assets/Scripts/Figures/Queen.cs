@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Queen : Figure
 {
-    public Queen(string name, Sprite sprite):base(name, sprite)
+    public Queen(string name, Side side):base(name, side)
     {
+        Sprite = side == Side.White ? Resources.Load<Sprite>("wqueen") : Resources.Load<Sprite>("bqueen");
     }
     
     public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)

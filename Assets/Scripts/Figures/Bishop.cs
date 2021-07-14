@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Bishop : Figure
 {
-    public Bishop(string name, Sprite sprite):base(name, sprite)
+    public Bishop(string name, Side side):base(name, side)
     {
+        Sprite = side == Side.White ? Resources.Load<Sprite>("wbishop") : Resources.Load<Sprite>("bbishop");
     }
     
     public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)

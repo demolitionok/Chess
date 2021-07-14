@@ -5,8 +5,9 @@ using UnityEngine;
 public class King : Figure
 {
 
-    public King(string name, Sprite sprite):base(name, sprite)
+    public King(string name, Side side):base(name, side)
     {
+        Sprite = side == Side.White ? Resources.Load<Sprite>("wking") : Resources.Load<Sprite>("bking");
     }
     public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)
     {

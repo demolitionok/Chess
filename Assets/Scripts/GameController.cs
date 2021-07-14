@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.U2D.IK;
 using UnityEngine.UI;
 
 public delegate void OnTrySelectCoords((int, int) coords);
 public static class GameController
 {
-    public static GameObject[,] CellsGameObjects = new GameObject[8,8];
+    public static GameObject[,] CellsGameObjects = new GameObject[8,8];// перенести в боард
     public static (int, int)? selectedCoords;
     public static OnTrySelectCoords OnTrySelectCoords;
     public static Side currentSide = Side.White;
@@ -45,19 +46,16 @@ public static class GameController
 
     public static void MoveFigure((int, int) from, (int, int) to)
     {
-        var s = GetCellByCoords(from).State;
-        var f = GetCellByCoords(from).Figure;
+        GetCellByCoords(to).Figure = GetCellByCoords(from).Figure;
         GetCellByCoords(from).Figure = null;
-        GetCellByCoords(from).State = null;
-        GetCellByCoords(to).Figure = f;
-        GetCellByCoords(to).State = s;
     }
     
     public static bool CanMove((int, int) coords)
     {
         try
         {
-            return GetCellByCoords(coords).State == null;
+            var fig = GetCellByCoords(coords).Figure;
+            return fig == null;
         }
         catch (IndexOutOfRangeException e)
         {
@@ -68,7 +66,9 @@ public static class GameController
     {
         try
         {
-            return GetCellByCoords(coords).State != currentSide && GetCellByCoords(coords).State != null;
+            var fig = GetCellByCoords(coords).Figure;
+            if(fig != null)
+                return fig.Side != currentSide;
         }
         catch (IndexOutOfRangeException e)
         {
@@ -132,7 +132,7 @@ public static class GameController
                 relativeDirections[0].Add((2, 0));
             }
 
-            if (selectedCell.State == Side.White)
+            if (selectedCell.Figure.Side == Side.White)
             {
                 for (int y = 0; y < relativeDirections.Count; y++)
                 {
@@ -145,12 +145,13 @@ public static class GameController
         }
         return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
     }
+    
     public static List<List<(int, int)>> GetFigureGlobalAttackCoords((int, int) selectedFigureCoords)
     {
         var selectedCell = GetCellByCoords(selectedFigureCoords);
         var selectedFigure = selectedCell.Figure;
         var relativeDirections = selectedFigure.GetRelativeAttacks((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
-        if (selectedFigure.GetType() == typeof(Pawn) && selectedCell.State == Side.White)
+        if (selectedFigure.GetType() == typeof(Pawn) && selectedCell.Figure.Side == Side.White)
         {
             for(int y = 0; y < relativeDirections.Count; y++)
             {
@@ -209,7 +210,6 @@ public static class GameController
             var currentCell = GetCellByCoords(selectedFigureCoords);
             var destinationCell = GetCellByCoords(move);
             var destinationCellFigure = destinationCell.Figure;
-            var destinationCellState = destinationCell.State;
             MoveFigure(selectedFigureCoords, move);
             if (!IsCheck())
             {
@@ -217,7 +217,6 @@ public static class GameController
             }
             MoveFigure(move, selectedFigureCoords);
             destinationCell.Figure = destinationCellFigure;
-            destinationCell.State = destinationCellState;
         }
         return result;
     }
@@ -234,7 +233,7 @@ public static class GameController
     {
         var cell = GetCellByCoords(coords);
         var textTranform = cell.gameObject.transform.GetChild(0);
-        var textStr = $" {cell.State}";
+        var textStr = $" {cell.Figure.Side}";
         textStr += $"\n {coords.Item2}, {coords.Item1}";
         var figureName = cell.Figure == null ? "noFigure" : cell.Figure.Name;
         textStr += $"\n {figureName}";
@@ -286,15 +285,19 @@ public static class GameController
             {
                 var curCell = GetCellByCoords((y, x));
                 
-                if (curCell.State == currentSide && curCell.State != null)
+                if (curCell.Figure != null)
                 {
-                    var possibleAttacks = GetPossibleAttacks((y, x));
-                    foreach (var possibleAttack in possibleAttacks)
+                    if (curCell.Figure.Side == currentSide)
                     {
-                        if (GetCellByCoords(possibleAttack).Figure.GetType() == typeof(King)) 
+                        var possibleAttacks = GetPossibleAttacks((y, x));
+                        foreach (var possibleAttack in possibleAttacks)
                         {
-                            currentSide = currentSide == Side.White ? Side.Black : Side.White;
-                            return true;
+                            if (GetCellByCoords(possibleAttack).Figure.GetType() == typeof(King))
+                            {
+                                currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                                Debug.Log($"Checked");
+                                return true;
+                            }
                         }
                     }
                 }
@@ -311,12 +314,15 @@ public static class GameController
             for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
             {
                 var curCell = GetCellByCoords((y, x));
-                
-                if (curCell.State == currentSide && curCell.State != null)
+
+                if (curCell.Figure != null)
                 {
-                    if (GetActualAttacks((y, x)).Count != 0 || GetActualMoves((y, x)).Count != 0)
+                    if (curCell.Figure.Side == currentSide)
                     {
-                        return false;
+                        if (GetActualAttacks((y, x)).Count != 0 || GetActualMoves((y, x)).Count != 0)
+                        {
+                            return false;
+                        }
                     }
                 }
             }
@@ -330,9 +336,12 @@ public static class GameController
         
         if (selectedCoords == null)
         {
-            if (currentSide == nextCell.State)
+            if (nextCell.Figure != null)
             {
-                selectedCoords = coords;
+                if (currentSide == nextCell.Figure.Side)
+                {
+                    selectedCoords = coords;
+                }
             }
         }
         else
@@ -343,19 +352,22 @@ public static class GameController
             {
                 selectedCoords = null;
             }
-            else if (currentSide == nextCell.State)
+            else if (nextCell.Figure != null)
             {
-                selectedCoords = coords;
-            }
-            else if (nextCell.State != null)
-            {
-                var possibleAttacks = GetActualAttacks(selectedCoords.Value);
-                if (possibleAttacks.Contains(coords))
+                if (currentSide == nextCell.Figure.Side)
                 {
-                    MoveFigure(selectedCoords.Value, coords);
-                    currentFigure.OnMove?.Invoke();
-                    selectedCoords = null;
-                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                    selectedCoords = coords;
+                }
+                else
+                {
+                    var possibleAttacks = GetActualAttacks(selectedCoords.Value);
+                    if (possibleAttacks.Contains(coords))
+                    {
+                        MoveFigure(selectedCoords.Value, coords);
+                        currentFigure.OnMove?.Invoke();
+                        selectedCoords = null;
+                        currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                    }
                 }
             }
             else

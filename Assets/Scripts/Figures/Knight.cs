@@ -5,9 +5,15 @@ using UnityEngine;
 public class Knight : Figure
 {
 
-    public Knight(string name, Sprite sprite):base(name, sprite)
+    public Knight(string name, Side side):base(name, side)
     {
+        Sprite = side == Side.White ? Resources.Load<Sprite>("wknight") : Resources.Load<Sprite>("bknight");
     }
+
+    /*public Knight() : base("Knight")
+    {
+        Sprite = null;
+    }*/
 
     public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)
     {
