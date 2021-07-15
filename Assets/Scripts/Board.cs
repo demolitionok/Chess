@@ -6,17 +6,35 @@ using UnityEngine.UI;
 
 public class Board : MonoBehaviour
 {
+    public int xSize;
+    public int ySize;
+    private GameObject[,] CellsGameObjects;
     public GameObject Canvas;
+    public GameController GameController;
     public GameObject CellPrefab;
     private float cellWidth;
     private float cellHeight;
     public float Offset;
     
 
-    private void GenerateBoard()
+    private void RegisterCell(GameObject cellGameObject, (int, int) coords)//!coords should be written in (y, x) format
     {
-        var xSize = GameController.CellsGameObjects.GetLength(1);
-        var ySize = GameController.CellsGameObjects.GetLength(0);
+        var cell = cellGameObject.AddComponent<Cell>();
+        cellGameObject.GetComponent<Button>().onClick.AddListener(() =>
+        {
+            GameController.OnTrySelectCoords.Invoke(coords);
+        });
+        CellsGameObjects[coords.Item1, coords.Item2] = cellGameObject;
+    }
+    
+
+    public Cell GetCellByCoords((int,int) coords)//!coords should be written in (y, x) format
+    {
+        return CellsGameObjects[coords.Item1, coords.Item2].GetComponent<Cell>();
+        
+    }
+    private void Generate()
+    {
         for (int y = 0; y < ySize; y++)
         {
             for (int x = 0; x < xSize; x++)
@@ -25,9 +43,9 @@ public class Board : MonoBehaviour
                     new Vector3(x * cellWidth + Offset, -y * cellHeight - Offset), Quaternion.identity);
                 cellGameObject.transform.SetParent(gameObject.transform, false);
 
-                CellFabric.RegisterCell(cellGameObject, (y, x));
+                RegisterCell(cellGameObject, (y, x));
 
-                cellGameObject = GameController.CellsGameObjects[y, x];
+                cellGameObject = CellsGameObjects[y, x];
 
                 var cell = cellGameObject.GetComponent<Cell>();
                 cell.Figure = null;
@@ -92,14 +110,16 @@ public class Board : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        CellsGameObjects = new GameObject[ySize, xSize];
+    }
 
     void Start()
     {
-        GameController.OnTrySelectCoords += GameController.TrySelectCoords;
         cellWidth = CellPrefab.GetComponent<RectTransform>().rect.width;
         cellHeight = CellPrefab.GetComponent<RectTransform>().rect.height;
-        GenerateBoard();
-        GameController.UpdateBoard();
+        Generate();
     }
 
     void Update()

@@ -7,54 +7,27 @@ using UnityEngine.U2D.IK;
 using UnityEngine.UI;
 
 public delegate void OnTrySelectCoords((int, int) coords);
-public static class GameController
+public delegate void OnSelected();
+
+public class GameController : MonoBehaviour
 {
-    public static GameObject[,] CellsGameObjects = new GameObject[8,8];// перенести в боард
-    public static (int, int)? selectedCoords;
-    public static OnTrySelectCoords OnTrySelectCoords;
-    public static Side currentSide = Side.White;
-
-    public static Cell GetCellByCoords((int,int) coords)//!coords should be written in (y, x) format
-    {
-        return CellsGameObjects[coords.Item1, coords.Item2].GetComponent<Cell>();
-        
-    }
-
-    public static void RenderAttacks(List<(int, int)> possibleAttacks)
-    {
-        foreach (var attack in possibleAttacks)
-        {
-            var curCell = GetCellByCoords(attack);
-            var colors = curCell.gameObject.GetComponent<Button>().colors;
-            colors.normalColor = Color.red;
-            colors.selectedColor = Color.red;
-            curCell.gameObject.GetComponent<Button>().colors = colors;
-        }
-    }
+    public Board Board;
+    public (int, int)? selectedCoords;
+    public OnTrySelectCoords OnTrySelectCoords;
+    public OnSelected OnSelected;
+    public Side currentSide = Side.White;
     
-    public static void RenderMoves(List<(int, int)> possibleMoves)
-    {
-        foreach (var move in possibleMoves)
-        {
-            var curCell = GetCellByCoords(move);
-            var colors = curCell.gameObject.GetComponent<Button>().colors;
-            colors.normalColor = Color.blue;
-            colors.selectedColor = Color.blue;
-            curCell.gameObject.GetComponent<Button>().colors = colors;
-        }
-    }
 
-    public static void MoveFigure((int, int) from, (int, int) to)
+    public void MoveFigure((int, int) from, (int, int) to)
     {
-        GetCellByCoords(to).Figure = GetCellByCoords(from).Figure;
-        GetCellByCoords(from).Figure = null;
+        Board.GetCellByCoords(to).Figure = Board.GetCellByCoords(from).Figure;
+        Board.GetCellByCoords(from).Figure = null;
     }
-    
-    public static bool CanMove((int, int) coords)
+    private bool CanMove((int, int) coords)
     {
         try
         {
-            var fig = GetCellByCoords(coords).Figure;
+            var fig = Board.GetCellByCoords(coords).Figure;
             return fig == null;
         }
         catch (IndexOutOfRangeException e)
@@ -62,11 +35,11 @@ public static class GameController
         }
         return false;
     }
-    public static bool CanAttack((int, int) coords)
+    private bool CanAttack((int, int) coords)
     {
         try
         {
-            var fig = GetCellByCoords(coords).Figure;
+            var fig = Board.GetCellByCoords(coords).Figure;
             if(fig != null)
                 return fig.Side != currentSide;
         }
@@ -76,7 +49,7 @@ public static class GameController
         return false;
     }
     
-    public static List<(int, int)> GetPossibleAttacks((int, int) selectedFigureCoords)
+    private List<(int, int)> GetPossibleAttacks((int, int) selectedFigureCoords)
     {
         var result = new List<(int, int)>();
         foreach (var globalDirection in GetFigureGlobalAttackCoords(selectedFigureCoords))
@@ -98,7 +71,7 @@ public static class GameController
         return result;
     }
     
-    public static List<List<(int, int)>> ConvertRelativeDirectionsToGlobal(List<List<(int, int)>> relativeDirections, (int, int) pivotCoords)
+    private List<List<(int, int)>> ConvertRelativeDirectionsToGlobal(List<List<(int, int)>> relativeDirections, (int, int) pivotCoords)
     {
         var result = new List<List<(int, int)>>();
         foreach (var direction in relativeDirections)
@@ -114,16 +87,16 @@ public static class GameController
         return result;
     }
 
-    public static (int,int) ReverseY((int,int) YXcoord)
+    private (int,int) ReverseY((int,int) YXcoord)
     {
         return (-YXcoord.Item1, YXcoord.Item2);
     }
 
-    public static List<List<(int, int)>> GetFigureGlobalMovementCoords((int, int) selectedFigureCoords)
+    private List<List<(int, int)>> GetFigureGlobalMovementCoords((int, int) selectedFigureCoords)
     {
-        var selectedCell = GetCellByCoords(selectedFigureCoords);
+        var selectedCell = Board.GetCellByCoords(selectedFigureCoords);
         var selectedFigure = selectedCell.Figure;
-        var relativeDirections = selectedFigure.GetRelativeMoves((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
+        var relativeDirections = selectedFigure.GetRelativeMoves((Board.ySize, Board.xSize));
         if (selectedFigure is Pawn pawnFig)
         {
 
@@ -146,11 +119,11 @@ public static class GameController
         return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
     }
     
-    public static List<List<(int, int)>> GetFigureGlobalAttackCoords((int, int) selectedFigureCoords)
+    private List<List<(int, int)>> GetFigureGlobalAttackCoords((int, int) selectedFigureCoords)
     {
-        var selectedCell = GetCellByCoords(selectedFigureCoords);
+        var selectedCell = Board.GetCellByCoords(selectedFigureCoords);
         var selectedFigure = selectedCell.Figure;
-        var relativeDirections = selectedFigure.GetRelativeAttacks((CellsGameObjects.GetLength(0), CellsGameObjects.GetLength(1)));
+        var relativeDirections = selectedFigure.GetRelativeAttacks((Board.ySize, Board.xSize));
         if (selectedFigure.GetType() == typeof(Pawn) && selectedCell.Figure.Side == Side.White)
         {
             for(int y = 0; y < relativeDirections.Count; y++)
@@ -164,7 +137,7 @@ public static class GameController
         return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
     }
 
-    public static List<(int, int)> GetPossibleMoves((int, int) selectedFigureCoords)
+    private List<(int, int)> GetPossibleMoves((int, int) selectedFigureCoords)
     {
         var result = new List<(int, int)>();
         foreach (var globalDirection in GetFigureGlobalMovementCoords(selectedFigureCoords))
@@ -187,7 +160,7 @@ public static class GameController
         return result;
     }
 
-    public static List<(int, int)> GetActualMoves((int, int) selectedFigureCoords)
+    public List<(int, int)> GetActualMoves((int, int) selectedFigureCoords)
     {
         var result = new List<(int, int)>();
         foreach (var move in GetPossibleMoves(selectedFigureCoords))
@@ -202,13 +175,13 @@ public static class GameController
         return result;
     }
 
-    public static List<(int, int)> GetActualAttacks((int, int) selectedFigureCoords)
+    public List<(int, int)> GetActualAttacks((int, int) selectedFigureCoords)
     {
         var result = new List<(int, int)>();
         foreach (var move in GetPossibleAttacks(selectedFigureCoords))
         {
-            var currentCell = GetCellByCoords(selectedFigureCoords);
-            var destinationCell = GetCellByCoords(move);
+            var currentCell = Board.GetCellByCoords(selectedFigureCoords);
+            var destinationCell = Board.GetCellByCoords(move);
             var destinationCellFigure = destinationCell.Figure;
             MoveFigure(selectedFigureCoords, move);
             if (!IsCheck())
@@ -221,17 +194,10 @@ public static class GameController
         return result;
     }
 
-    public static void ColorButton(Button button, Color color)
-    {
-        var colors = button.colors;
-        colors.normalColor = color;
-        colors.selectedColor = color;
-        button.colors = colors;
-    }
 
-    public static void SetCellInfoText((int, int) coords)
+    public void SetCellInfoText((int, int) coords)
     {
-        var cell = GetCellByCoords(coords);
+        var cell = Board.GetCellByCoords(coords);
         var textTranform = cell.gameObject.transform.GetChild(0);
         var textStr = $" {cell.Figure.Side}";
         textStr += $"\n {coords.Item2}, {coords.Item1}";
@@ -240,50 +206,15 @@ public static class GameController
         textTranform.gameObject.GetComponent<Text>().text = textStr;
     }
 
-    public static void SetFigureImageByCoords((int, int) coords, Sprite sprite)
-    {
-        GetCellByCoords(coords).gameObject.GetComponent<Image>().sprite = sprite;
-    }
-    public static void UpdateBoard()
-    {
-        for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
-        {
-            for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
-            {
-                var curCell = GetCellByCoords((y, x));
-                //SetCellInfoText((y,x));
-                var curCellButton = curCell.gameObject.GetComponent<Button>();
-                ColorButton(curCellButton, selectedCoords == (y, x) ? Color.green : Color.white);
-                if (curCell.Figure != null) 
-                {
-                    SetFigureImageByCoords((y, x), curCell.Figure.Sprite);
-                }
-                else
-                {
-                    SetFigureImageByCoords((y, x), Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero));
-                }
-            }
-        }
 
-        try//throws exception only before first figure selection because selectedCoords = null
-        {
-            RenderMoves(GetActualMoves(selectedCoords.Value));
-            RenderAttacks(GetActualAttacks(selectedCoords.Value));
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-    }
-
-    public static bool IsCheck()
+    public bool IsCheck()
     {
         currentSide = currentSide == Side.White ? Side.Black : Side.White;
-        for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
+        for (int y = 0; y < Board.ySize; y++)
         {
-            for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
+            for (int x = 0; x < Board.xSize; x++)
             {
-                var curCell = GetCellByCoords((y, x));
+                var curCell = Board.GetCellByCoords((y, x));
                 
                 if (curCell.Figure != null)
                 {
@@ -292,7 +223,7 @@ public static class GameController
                         var possibleAttacks = GetPossibleAttacks((y, x));
                         foreach (var possibleAttack in possibleAttacks)
                         {
-                            if (GetCellByCoords(possibleAttack).Figure.GetType() == typeof(King))
+                            if (Board.GetCellByCoords(possibleAttack).Figure.GetType() == typeof(King))
                             {
                                 currentSide = currentSide == Side.White ? Side.Black : Side.White;
                                 Debug.Log($"Checked");
@@ -307,13 +238,13 @@ public static class GameController
         return false;
     }
 
-    public static bool IsMate()
+    public bool IsMate()
     {
-        for (int y = 0; y < CellsGameObjects.GetLength(0); y++)
+        for (int y = 0; y < Board.ySize; y++)
         {
-            for (int x = 0; x < CellsGameObjects.GetLength(1); x++)
+            for (int x = 0; x < Board.xSize; x++)
             {
-                var curCell = GetCellByCoords((y, x));
+                var curCell = Board.GetCellByCoords((y, x));
 
                 if (curCell.Figure != null)
                 {
@@ -330,9 +261,9 @@ public static class GameController
         return true;
     }
 
-    public static void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
+    public void TrySelectCoords((int, int) coords)//!should be written in (y, x) format
     {
-        var nextCell = GetCellByCoords(coords);
+        var nextCell = Board.GetCellByCoords(coords);
         
         if (selectedCoords == null)
         {
@@ -346,7 +277,7 @@ public static class GameController
         }
         else
         {
-            var currentCell = GetCellByCoords(selectedCoords.Value);
+            var currentCell = Board.GetCellByCoords(selectedCoords.Value);
             var currentFigure = currentCell.Figure;
             if (selectedCoords == coords)
             {
@@ -388,6 +319,11 @@ public static class GameController
                 Debug.Log($"Winner: {winnerSide}");
             }
         }
-        UpdateBoard();
+        OnSelected.Invoke();
+    }
+
+    private void Start()
+    {
+        OnTrySelectCoords += TrySelectCoords;
     }
 }
