@@ -29,11 +29,11 @@ public class Game : MonoBehaviour
         cellWidth = CellPrefab.GetComponent<RectTransform>().rect.width;
         cellHeight = CellPrefab.GetComponent<RectTransform>().rect.height;
         Board = new Board(ySize, xSize);
-        GameController = new GameController(Board.GetCellByCoords);
+        GameController = new GameController(Board.GetCellByCoords, ySize, xSize);
         BoardRenderer = new BoardRenderer(Board.GetCellByCoords);
+        GameController.OnSelection += UpdateBoard;
         GenerateBoard();
         UpdateBoard();
-        GameController.OnSelection += UpdateBoard;
     }
 
     private void GenerateBoard()

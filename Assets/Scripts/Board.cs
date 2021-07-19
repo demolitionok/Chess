@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 public class Board
 {
-    public readonly int xSize;
-    public readonly int ySize;
+    private readonly int xSize;
+    private readonly int ySize;
     private GameObject[,] CellsGameObjects;
 
     public Board(int ySize, int xSize)

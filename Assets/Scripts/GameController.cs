@@ -15,10 +15,10 @@ public class GameController
     public (int, int)? selectedCoords;
     public OnTrySelectCoords OnTrySelectCoords;
     public OnSelection OnSelection;
-    public Side currentSide = Side.White;
+    private Side currentSide = Side.White;
     private readonly Func<(int, int), Cell> getCellByCoords;
-    private int xSize;
-    private int ySize;
+    private readonly int xSize;
+    private readonly int ySize;
 
     public void MoveFigure((int, int) from, (int, int) to)
     {
@@ -326,9 +326,11 @@ public class GameController
         OnSelection.Invoke();
     }
 
-    public GameController(Func<(int, int), Cell> getCellByCoords)
+    public GameController(Func<(int, int), Cell> getCellByCoords, int ySize, int xSize)
     {
         this.getCellByCoords = getCellByCoords;
+        this.ySize = ySize;
+        this.xSize = xSize;
         OnTrySelectCoords += TrySelectCoords;
     }
 }
