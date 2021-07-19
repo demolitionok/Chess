@@ -421,9 +421,25 @@ PrefabInstance:
     m_TransformParent: {fileID: 719548355}
     m_Modifications:
     - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+      propertyPath: xSize
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+      propertyPath: ySize
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
       propertyPath: Canvas
       value: 
       objectReference: {fileID: 719548351}
+    - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+      propertyPath: Offset
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+      propertyPath: GameController
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2183050282340703004, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
       propertyPath: m_Name
       value: Board
