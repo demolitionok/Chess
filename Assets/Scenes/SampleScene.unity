@@ -378,6 +378,27 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2183050282340703005, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
   m_PrefabInstance: {fileID: 2183050282550187062}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1387694856 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2183050282340703004, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+  m_PrefabInstance: {fileID: 2183050282550187062}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1387694857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387694856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da3c9e47ca0f59f458a9c145676c75a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CellPrefab: {fileID: 3654566417930012829, guid: 74c421248b8067c4cbf40eed33c4195a, type: 3}
+  xSize: 8
+  ySize: 8
+  Offset: 16
 --- !u!1 &1432506995
 GameObject:
   m_ObjectHideFlags: 0
@@ -421,9 +442,25 @@ PrefabInstance:
     m_TransformParent: {fileID: 719548355}
     m_Modifications:
     - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+      propertyPath: xSize
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+      propertyPath: ySize
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
       propertyPath: Canvas
       value: 
       objectReference: {fileID: 719548351}
+    - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+      propertyPath: Offset
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
+      propertyPath: GameController
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2183050282340703004, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
       propertyPath: m_Name
       value: Board
@@ -472,5 +509,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2183050282340703002, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 22c54e6bf4d421a4bbe5312b515be5b7, type: 3}
