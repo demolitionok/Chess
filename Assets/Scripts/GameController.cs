@@ -26,30 +26,28 @@ public class GameController
         getCellByCoords(from).Figure = null;
     }
 
+    public bool IsCoordsValid((int, int) coords)
+    {
+        return coords.Item1 < ySize && coords.Item1 >= 0 && coords.Item2 < xSize && coords.Item2 >= 0;
+    }
+
     public bool CanMove((int, int) coords)
     {
-        try
+        if (IsCoordsValid(coords))
         {
             var fig = getCellByCoords(coords).Figure;
             return fig == null;
         }
-        catch (IndexOutOfRangeException e)
-        {
-        }
-
         return false;
     }
 
     public bool CanAttack((int, int) coords)
     {
-        try
+        if (IsCoordsValid(coords))
         {
             var fig = getCellByCoords(coords).Figure;
             if (fig != null)
                 return fig.Side != currentSide;
-        }
-        catch (IndexOutOfRangeException e)
-        {
         }
 
         return false;
@@ -264,6 +262,7 @@ public class GameController
         return true;
     }
 
+    //TODO: turn and OnTurn()
     public void TrySelectCoords((int, int) coords) //!should be written in (y, x) format
     {
         var nextCell = getCellByCoords(coords);

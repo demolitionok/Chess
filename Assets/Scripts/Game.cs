@@ -15,7 +15,7 @@ public class Game : MonoBehaviour
 {
     private GameController GameController;
     private Board Board;
-    private BoardRenderer BoardRenderer;
+    private BoardRenderer boardRenderer;
     public GameObject CellPrefab;
     public int xSize;
     public int ySize;
@@ -30,7 +30,7 @@ public class Game : MonoBehaviour
         cellHeight = CellPrefab.GetComponent<RectTransform>().rect.height;
         Board = new Board(ySize, xSize);
         GameController = new GameController(Board.GetCellByCoords, ySize, xSize);
-        BoardRenderer = new BoardRenderer(Board.GetCellByCoords);
+        boardRenderer = new BoardRenderer(Board.GetCellByCoords);
         GameController.OnSelection += UpdateBoard;
         GenerateBoard();
         UpdateBoard();
@@ -125,22 +125,22 @@ public class Game : MonoBehaviour
                 var curCell = Board.GetCellByCoords((y, x));
                 //SetCellInfoText((y,x));
                 var curCellButton = curCell.gameObject.GetComponent<Button>();
-                BoardRenderer.ColorButton(curCellButton, GameController.selectedCoords == (y, x) ? Color.green : Color.white);
+                boardRenderer.ColorButton(curCellButton, GameController.selectedCoords == (y, x) ? Color.green : Color.white);
                 if (curCell.Figure != null)
                 {
-                    BoardRenderer.SetFigureImageByCoords((y, x), curCell.Figure.Sprite);
+                    boardRenderer.SetFigureImageByCoords((y, x), curCell.Figure.Sprite);
                 }
                 else
                 {
-                    BoardRenderer.SetFigureImageByCoords((y, x), Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero));
+                    boardRenderer.SetFigureImageByCoords((y, x), Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero));
                 }
             }
         }
 
         try //throws exception only before first figure selection because selectedCoords = null
         {
-            BoardRenderer.RenderMoves(GameController.GetActualMoves(GameController.selectedCoords.Value));
-            BoardRenderer.RenderAttacks(GameController.GetActualAttacks(GameController.selectedCoords.Value));
+            boardRenderer.RenderMoves(GameController.GetActualMoves(GameController.selectedCoords.Value));
+            boardRenderer.RenderAttacks(GameController.GetActualAttacks(GameController.selectedCoords.Value));
         }
         catch (Exception e)
         {
