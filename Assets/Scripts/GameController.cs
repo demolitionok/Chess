@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.U2D.IK;
-using UnityEngine.UI;
 
 public delegate void OnSelection();
 
@@ -20,28 +18,29 @@ public class GameController
     private readonly int xSize;
     private readonly int ySize;
 
-    public void MoveFigure((int, int) from, (int, int) to)
+    private void MoveFigure((int, int) from, (int, int) to)
     {
         getCellByCoords(to).Figure = getCellByCoords(from).Figure;
         getCellByCoords(from).Figure = null;
     }
 
-    public bool IsCoordsValid((int, int) coords)
+    private bool IsCoordsValid((int, int) coords)
     {
         return coords.Item1 < ySize && coords.Item1 >= 0 && coords.Item2 < xSize && coords.Item2 >= 0;
     }
 
-    public bool CanMove((int, int) coords)
+    private bool CanMove((int, int) coords)
     {
         if (IsCoordsValid(coords))
         {
             var fig = getCellByCoords(coords).Figure;
             return fig == null;
         }
+
         return false;
     }
 
-    public bool CanAttack((int, int) coords)
+    private bool CanAttack((int, int) coords)
     {
         if (IsCoordsValid(coords))
         {
@@ -53,7 +52,7 @@ public class GameController
         return false;
     }
 
-    public CoordsList GetPossibleAttacks((int, int) selectedFigureCoords)
+    private CoordsList GetPossibleAttacks((int, int) selectedFigureCoords)
     {
         var result = new CoordsList();
         foreach (var globalDirection in GetFigureGlobalAttackCoords(selectedFigureCoords))
@@ -76,7 +75,7 @@ public class GameController
         return result;
     }
 
-    public List<CoordsList> ConvertRelativeDirectionsToGlobal(List<CoordsList> relativeDirections,
+    private List<CoordsList> ConvertRelativeDirectionsToGlobal(List<CoordsList> relativeDirections,
         (int, int) pivotCoords)
     {
         var result = new List<CoordsList>();
@@ -94,12 +93,12 @@ public class GameController
         return result;
     }
 
-    public (int, int) ReverseY((int, int) YXcoord)
+    private (int, int) ReverseY((int, int) YXcoord)
     {
         return (-YXcoord.Item1, YXcoord.Item2);
     }
 
-    public List<CoordsList> GetFigureGlobalMovementCoords((int, int) selectedFigureCoords)
+    private List<CoordsList> GetFigureGlobalMovementCoords((int, int) selectedFigureCoords)
     {
         var selectedCell = getCellByCoords(selectedFigureCoords);
         var selectedFigure = selectedCell.Figure;
@@ -126,7 +125,7 @@ public class GameController
         return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
     }
 
-    public List<CoordsList> GetFigureGlobalAttackCoords((int, int) selectedFigureCoords)
+    private List<CoordsList> GetFigureGlobalAttackCoords((int, int) selectedFigureCoords)
     {
         var selectedCell = getCellByCoords(selectedFigureCoords);
         var selectedFigure = selectedCell.Figure;
@@ -144,8 +143,7 @@ public class GameController
 
         return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
     }
-
-    public CoordsList GetPossibleMoves((int, int) selectedFigureCoords)
+    private CoordsList GetPossibleMoves((int, int) selectedFigureCoords)
     {
         var result = new CoordsList();
         foreach (var globalDirection in GetFigureGlobalMovementCoords(selectedFigureCoords))
@@ -206,7 +204,7 @@ public class GameController
     }
 
 
-    public bool IsCheck()
+    private bool IsCheck()
     {
         currentSide = currentSide == Side.White ? Side.Black : Side.White;
         for (int y = 0; y < ySize; y++)

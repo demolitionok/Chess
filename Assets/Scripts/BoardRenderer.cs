@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BoardRenderer
-{
-    private readonly Func<(int, int), Cell> GetCellByCoords;
+public delegate Cell GetCellByCoords((int, int) _);
 
-    public void ColorButton(Button button, Color color)
+public static class BoardRenderer
+{
+
+    public static void ColorButton(Button button, Color color)
     {
         var colors = button.colors;
         colors.normalColor = color;
@@ -16,37 +17,32 @@ public class BoardRenderer
         button.colors = colors;
     }
 
-    private void ColorCells(CoordsList cellsCoordsToColor, Color color)
+    private static void ColorCells(CoordsList cellsCoordsToColor, Color color, GetCellByCoords getCellByCoords)
     {
         foreach (var coords in cellsCoordsToColor)
         {
-            var curCell = GetCellByCoords(coords);
+            var curCell = getCellByCoords(coords);
             var button = curCell.gameObject.GetComponent<Button>();
             ColorButton(button, color);
         }
     }
 
-    public void RenderAttacks(CoordsList possibleAttacks) => ColorCells(possibleAttacks, Color.red);
-    public void RenderMoves(CoordsList possibleMoves) => ColorCells(possibleMoves, Color.blue);
+    public static void RenderAttacks(CoordsList possibleAttacks, GetCellByCoords getCellByCoords) => ColorCells(possibleAttacks, Color.red, getCellByCoords);
+    public static void RenderMoves(CoordsList possibleMoves, GetCellByCoords getCellByCoords) => ColorCells(possibleMoves, Color.blue, getCellByCoords);
 
-    public void SetFigureImageByCoords((int, int) coords, Sprite sprite)
+    public static void SetFigureImageByCoords((int, int) coords, Sprite sprite, GetCellByCoords getCellByCoords)
     {
-        GetCellByCoords(coords).gameObject.GetComponent<Image>().sprite = sprite;
+        getCellByCoords(coords).gameObject.GetComponent<Image>().sprite = sprite;
     }
 
-    public void SetCellInfoText((int, int) coords)
+    public static void SetCellInfoText((int, int) coords, GetCellByCoords getCellByCoords)
     {
-        var cell = GetCellByCoords(coords);
+        var cell = getCellByCoords(coords);
         var textTranform = cell.gameObject.transform.GetChild(0);
         var textStr = $" {cell.Figure.Side}";
         textStr += $"\n {coords.Item2}, {coords.Item1}";
         var figureName = cell.Figure == null ? "noFigure" : cell.Figure.Name;
         textStr += $"\n {figureName}";
         textTranform.gameObject.GetComponent<Text>().text = textStr;
-    }
-
-    public BoardRenderer(Func<(int, int), Cell> getCellByCoords)
-    {
-        GetCellByCoords = getCellByCoords;
     }
 }
