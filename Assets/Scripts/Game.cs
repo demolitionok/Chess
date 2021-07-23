@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public enum GameState
@@ -13,14 +14,20 @@ public enum GameState
 
 public class Game : MonoBehaviour
 {
-    private GameController GameController;
-    private Board Board;
-    public GameObject CellPrefab;
-    public int xSize;
-    public int ySize;
+    [SerializeField]
+    private GameObject CellPrefab;
+    [SerializeField]
+    private int xSize;
+    [SerializeField]
+    private int ySize;
+    [SerializeField]
+    private float offset;
+    
     private float cellWidth;
     private float cellHeight;
-    public float Offset;
+    private GameController GameController;
+    private InputController inputController;
+    private Board Board;
 
 
     public void Start()
@@ -29,6 +36,10 @@ public class Game : MonoBehaviour
         cellHeight = CellPrefab.GetComponent<RectTransform>().rect.height;
         Board = new Board(ySize, xSize);
         GameController = new GameController(Board.GetCellByCoords, ySize, xSize);
+        inputController = new InputController(GameController.GetCurrentSide, GameController.GetSelectedCoords,
+            Board.GetCellByCoords);
+
+        inputController.OnActionRequest += GameController.ProcessAction;
         GameController.OnSelection += UpdateBoard;
         GenerateBoard();
         UpdateBoard();
@@ -41,10 +52,10 @@ public class Game : MonoBehaviour
             for (int x = 0; x < xSize; x++)
             {
                 GameObject cellGameObject = Instantiate(CellPrefab,
-                    new Vector3(x * cellWidth + Offset, -y * cellHeight - Offset), Quaternion.identity);
+                    new Vector3(x * cellWidth + offset, -y * cellHeight - offset), Quaternion.identity);
                 cellGameObject.transform.SetParent(gameObject.transform, false);
 
-                Board.RegisterCell(cellGameObject, (y, x), GameController.OnTrySelectCoords);
+                Board.RegisterCell(cellGameObject, (y, x), inputController.RequestAction);
 
                 cellGameObject = Board.GetCellByCoords((y, x)).gameObject;
 
@@ -124,24 +135,19 @@ public class Game : MonoBehaviour
                 //SetCellInfoText((y,x));
                 var curCellButton = curCell.gameObject.GetComponent<Button>();
                 BoardRenderer.ColorButton(curCellButton,
-                    GameController.selectedCoords == (y, x) ? Color.green : Color.white);
-                if (curCell.Figure != null)
-                {
-                    BoardRenderer.SetFigureImageByCoords((y, x), curCell.Figure.Sprite, Board.GetCellByCoords);
-                }
-                else
-                {
-                    BoardRenderer.SetFigureImageByCoords((y, x),
-                        Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero), Board.GetCellByCoords);
-                }
+                    GameController.GetSelectedCoords() == (y, x) ? Color.green : Color.white);
+                BoardRenderer.SetFigureImageByCoords((y, x),
+                    curCell.Figure != null
+                        ? curCell.Figure.Sprite
+                        : Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero), Board.GetCellByCoords);
             }
         }
 
-        if (GameController.selectedCoords != null)
+        if (GameController.GetSelectedCoords() != null)
         {
-            BoardRenderer.RenderMoves(GameController.GetActualMoves(GameController.selectedCoords.Value),
+            BoardRenderer.RenderMoves(GameController.GetActualMoves(GameController.GetSelectedCoords().Value),
                 Board.GetCellByCoords);
-            BoardRenderer.RenderAttacks(GameController.GetActualAttacks(GameController.selectedCoords.Value),
+            BoardRenderer.RenderAttacks(GameController.GetActualAttacks(GameController.GetSelectedCoords().Value),
                 Board.GetCellByCoords);
         }
     }

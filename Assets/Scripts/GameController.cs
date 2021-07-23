@@ -6,17 +6,18 @@ using UnityEngine;
 
 public delegate void OnSelection();
 
-public delegate void OnTrySelectCoords((int, int) coords);
 
 public class GameController
 {
-    public (int, int)? selectedCoords;
-    public OnTrySelectCoords OnTrySelectCoords;
     public OnSelection OnSelection;
+    private (int, int)? selectedCoords;
     private Side currentSide = Side.White;
     private readonly Func<(int, int), Cell> getCellByCoords;
     private readonly int xSize;
     private readonly int ySize;
+
+    public (int, int)? GetSelectedCoords() => selectedCoords;
+    public Side GetCurrentSide() => currentSide;
 
     private void MoveFigure((int, int) from, (int, int) to)
     {
@@ -143,6 +144,7 @@ public class GameController
 
         return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
     }
+
     private CoordsList GetPossibleMoves((int, int) selectedFigureCoords)
     {
         var result = new CoordsList();
@@ -261,48 +263,35 @@ public class GameController
     }
 
     //TODO: turn and OnTurn()
-    public void TrySelectCoords((int, int) coords) //!should be written in (y, x) format
+    public void ProcessAction((int, int) coords, PlayerAction playerAction) //!should be written in (y, x) format
     {
-        var nextCell = getCellByCoords(coords);
-
-        if (selectedCoords == null)
+        switch (playerAction)
         {
-            if (nextCell.Figure != null)
-            {
-                if (currentSide == nextCell.Figure.Side)
-                {
-                    selectedCoords = coords;
-                }
-            }
-        }
-        else
-        {
-            var currentCell = getCellByCoords(selectedCoords.Value);
-            var currentFigure = currentCell.Figure;
-            if (selectedCoords == coords)
-            {
+            case PlayerAction.CancelSelection:
                 selectedCoords = null;
-            }
-            else if (nextCell.Figure != null)
+                break;
+            case PlayerAction.SelectNewFigure:
+                selectedCoords = coords;
+                break;
+            case PlayerAction.AttackFigure:
             {
-                if (currentSide == nextCell.Figure.Side)
+                var currentCell = getCellByCoords(selectedCoords.Value);
+                var currentFigure = currentCell.Figure;
+                var possibleAttacks = GetActualAttacks(selectedCoords.Value);
+                if (possibleAttacks.Contains(coords))
                 {
-                    selectedCoords = coords;
+                    MoveFigure(selectedCoords.Value, coords);
+                    currentFigure.OnMove?.Invoke();
+                    selectedCoords = null;
+                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }
-                else
-                {
-                    var possibleAttacks = GetActualAttacks(selectedCoords.Value);
-                    if (possibleAttacks.Contains(coords))
-                    {
-                        MoveFigure(selectedCoords.Value, coords);
-                        currentFigure.OnMove?.Invoke();
-                        selectedCoords = null;
-                        currentSide = currentSide == Side.White ? Side.Black : Side.White;
-                    }
-                }
+
+                break;
             }
-            else
+            case PlayerAction.MoveFigure:
             {
+                var currentCell = getCellByCoords(selectedCoords.Value);
+                var currentFigure = currentCell.Figure;
                 var actualMoves = GetActualMoves(selectedCoords.Value);
                 if (actualMoves.Contains(coords))
                 {
@@ -311,13 +300,11 @@ public class GameController
                     selectedCoords = null;
                     currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }
-            }
 
-            if (IsMate())
-            {
-                string winnerSide = currentSide == Side.White ? "black" : "white";
-                Debug.Log($"Winner: {winnerSide}");
+                break;
             }
+            default:
+                throw new NotImplementedException();
         }
 
         OnSelection.Invoke();
@@ -328,6 +315,5 @@ public class GameController
         this.getCellByCoords = getCellByCoords;
         this.ySize = ySize;
         this.xSize = xSize;
-        OnTrySelectCoords += TrySelectCoords;
     }
 }

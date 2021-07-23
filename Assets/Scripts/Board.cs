@@ -17,19 +17,15 @@ public class Board
         CellsGameObjects = new GameObject[ySize, xSize];
     }
 
-    public void RegisterCell(GameObject cellGameObject, (int, int) coords, OnTrySelectCoords onTrySelectCoords)//!coords should be written in (y, x) format
+    public void RegisterCell(GameObject cellGameObject, (int, int) coords, OnActionSend onActionSend) //!coords should be written in (y, x) format
     {
         var cell = cellGameObject.AddComponent<Cell>();
-        cellGameObject.GetComponent<Button>().onClick.AddListener(() =>
-        {
-            onTrySelectCoords.Invoke(coords);
-        });
+        cellGameObject.GetComponent<Button>().onClick.AddListener(() => { onActionSend.Invoke(coords); });
         CellsGameObjects[coords.Item1, coords.Item2] = cellGameObject;
     }
-    
-    public Cell GetCellByCoords((int,int) coords)//!coords should be written in (y, x) format
+
+    public Cell GetCellByCoords((int, int) coords) //!coords should be written in (y, x) format
     {
         return CellsGameObjects[coords.Item1, coords.Item2].GetComponent<Cell>();
     }
-    
 }
