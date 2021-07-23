@@ -16,7 +16,7 @@ public class BoardRenderer
         button.colors = colors;
     }
 
-    private void ColorCells(List<(int, int)> cellsCoordsToColor, Color color)
+    private void ColorCells(CoordsList cellsCoordsToColor, Color color)
     {
         foreach (var coords in cellsCoordsToColor)
         {
@@ -26,8 +26,8 @@ public class BoardRenderer
         }
     }
 
-    public void RenderAttacks(List<(int, int)> possibleAttacks) => ColorCells(possibleAttacks, Color.red);
-    public void RenderMoves(List<(int, int)> possibleMoves) => ColorCells(possibleMoves, Color.blue);
+    public void RenderAttacks(CoordsList possibleAttacks) => ColorCells(possibleAttacks, Color.red);
+    public void RenderMoves(CoordsList possibleMoves) => ColorCells(possibleMoves, Color.blue);
 
     public void SetFigureImageByCoords((int, int) coords, Sprite sprite)
     {

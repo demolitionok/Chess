@@ -11,8 +11,8 @@ public abstract class Figure
     public Sprite Sprite;
     public Side Side;
     public OnMove OnMove;
-    public abstract List<List<(int, int)>> GetRelativeMoves((int, int) size);//!should be written in (x, y) format
-    public abstract List<List<(int, int)>> GetRelativeAttacks((int, int) size);
+    public abstract List<CoordsList> GetRelativeMoves((int, int) size);//!should be written in (x, y) format
+    public abstract List<CoordsList> GetRelativeAttacks((int, int) size);
     protected Figure(string name, Side side)
     {
         _name = name;

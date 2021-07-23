@@ -13,12 +13,12 @@ public class Pawn : Figure
         Sprite = Side == Side.White ? Resources.Load<Sprite>("wpawn") : Resources.Load<Sprite>("bpawn");
     }
 
-    public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)
+    public override List<CoordsList> GetRelativeAttacks((int, int) size)
     {
-        return new List<List<(int, int)>>{new List<(int, int)>{(1, 1)}, new List<(int, int)>{(1, -1)}};
+        return new List<CoordsList>{new CoordsList{(1, 1)}, new CoordsList{(1, -1)}};
     }
-    public override List<List<(int, int)>> GetRelativeMoves((int, int) size)
+    public override List<CoordsList> GetRelativeMoves((int, int) size)
     {
-        return new List<List<(int, int)>>{new List<(int, int)>{(1, 0)}};
+        return new List<CoordsList>{new CoordsList{(1, 0)}};
     }
 }

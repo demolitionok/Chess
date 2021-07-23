@@ -53,9 +53,9 @@ public class GameController
         return false;
     }
 
-    public List<(int, int)> GetPossibleAttacks((int, int) selectedFigureCoords)
+    public CoordsList GetPossibleAttacks((int, int) selectedFigureCoords)
     {
-        var result = new List<(int, int)>();
+        var result = new CoordsList();
         foreach (var globalDirection in GetFigureGlobalAttackCoords(selectedFigureCoords))
         {
             foreach (var globalCoords in globalDirection)
@@ -76,13 +76,13 @@ public class GameController
         return result;
     }
 
-    public List<List<(int, int)>> ConvertRelativeDirectionsToGlobal(List<List<(int, int)>> relativeDirections,
+    public List<CoordsList> ConvertRelativeDirectionsToGlobal(List<CoordsList> relativeDirections,
         (int, int) pivotCoords)
     {
-        var result = new List<List<(int, int)>>();
+        var result = new List<CoordsList>();
         foreach (var direction in relativeDirections)
         {
-            var globalDirection = new List<(int, int)>();
+            var globalDirection = new CoordsList();
             foreach (var move in direction)
             {
                 globalDirection.Add((move.Item1 + pivotCoords.Item1, move.Item2 + pivotCoords.Item2));
@@ -99,7 +99,7 @@ public class GameController
         return (-YXcoord.Item1, YXcoord.Item2);
     }
 
-    public List<List<(int, int)>> GetFigureGlobalMovementCoords((int, int) selectedFigureCoords)
+    public List<CoordsList> GetFigureGlobalMovementCoords((int, int) selectedFigureCoords)
     {
         var selectedCell = getCellByCoords(selectedFigureCoords);
         var selectedFigure = selectedCell.Figure;
@@ -126,7 +126,7 @@ public class GameController
         return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
     }
 
-    public List<List<(int, int)>> GetFigureGlobalAttackCoords((int, int) selectedFigureCoords)
+    public List<CoordsList> GetFigureGlobalAttackCoords((int, int) selectedFigureCoords)
     {
         var selectedCell = getCellByCoords(selectedFigureCoords);
         var selectedFigure = selectedCell.Figure;
@@ -145,9 +145,9 @@ public class GameController
         return ConvertRelativeDirectionsToGlobal(relativeDirections, selectedFigureCoords);
     }
 
-    public List<(int, int)> GetPossibleMoves((int, int) selectedFigureCoords)
+    public CoordsList GetPossibleMoves((int, int) selectedFigureCoords)
     {
-        var result = new List<(int, int)>();
+        var result = new CoordsList();
         foreach (var globalDirection in GetFigureGlobalMovementCoords(selectedFigureCoords))
         {
             foreach (var globalCoords in globalDirection)
@@ -167,9 +167,9 @@ public class GameController
         return result;
     }
 
-    public List<(int, int)> GetActualMoves((int, int) selectedFigureCoords)
+    public CoordsList GetActualMoves((int, int) selectedFigureCoords)
     {
-        var result = new List<(int, int)>();
+        var result = new CoordsList();
         foreach (var move in GetPossibleMoves(selectedFigureCoords))
         {
             MoveFigure(selectedFigureCoords, move);
@@ -184,9 +184,9 @@ public class GameController
         return result;
     }
 
-    public List<(int, int)> GetActualAttacks((int, int) selectedFigureCoords)
+    public CoordsList GetActualAttacks((int, int) selectedFigureCoords)
     {
-        var result = new List<(int, int)>();
+        var result = new CoordsList();
         foreach (var move in GetPossibleAttacks(selectedFigureCoords))
         {
             var currentCell = getCellByCoords(selectedFigureCoords);

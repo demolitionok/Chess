@@ -9,16 +9,16 @@ public class King : Figure
     {
         Sprite = side == Side.White ? Resources.Load<Sprite>("wking") : Resources.Load<Sprite>("bking");
     }
-    public override List<List<(int, int)>> GetRelativeAttacks((int, int) size)
+    public override List<CoordsList> GetRelativeAttacks((int, int) size)
     {
         return GetRelativeMoves(size);
     }
-    public override List<List<(int, int)>> GetRelativeMoves((int, int) size)
+    public override List<CoordsList> GetRelativeMoves((int, int) size)
     {
-        var result = new List<List<(int, int)>>();
+        var result = new List<CoordsList>();
         for (int i = 0; i < 8; i++)
         {
-            var direction = new List<(int, int)>();
+            var direction = new CoordsList();
             result.Add(direction);
         }
         result[0].Add((1,1));
