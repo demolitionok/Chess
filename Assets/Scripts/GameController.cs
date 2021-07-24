@@ -20,7 +20,7 @@ public class GameController
     public (int, int)? GetSelectedCoords() => selectedCoords;
     public Side GetCurrentSide() => currentSide;
 
-    private void MoveFigure((int, int) from, (int, int) to)
+    private void PlaceFigureTo((int, int) from, (int, int) to)
     {
         getCellByCoords(to).Figure = getCellByCoords(from).Figure;
         getCellByCoords(from).Figure = null;
@@ -155,7 +155,6 @@ public class GameController
             {
                 if (CanMove(globalCoords))
                 {
-                    //virtual movement
                     result.Add(globalCoords);
                 }
                 else
@@ -171,16 +170,55 @@ public class GameController
     public CoordsList GetActualMoves((int, int) selectedFigureCoords)
     {
         var result = new CoordsList();
+        var selectedFigure = getCellByCoords(selectedFigureCoords).Figure;
+        if (selectedFigure is King king)
+        {
+            for (int y = 0; y < ySize; y++)
+            {
+                for (int x = 0; x < xSize; x++)
+                {
+                    var destCoords = (y, x);
+                    var curCell = getCellByCoords(destCoords);
+                    
+                    if (curCell.Figure is Tower tower)
+                    {
+                        if (curCell.Figure.Side == currentSide)
+                        {
+                            var isPathClear = IsPathClear(selectedFigureCoords, destCoords);
+                            var isPathWithoutCheck = IsPathWithoutChecks(selectedFigureCoords, destCoords);
+                            if (isPathClear && isPathWithoutCheck)
+                            {
+                                result.Add(destCoords);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         foreach (var move in GetPossibleMoves(selectedFigureCoords))
         {
-            MoveFigure(selectedFigureCoords, move);
-            if (!IsCheck())
+            if (!IsCheckAt(selectedFigureCoords, move))
             {
                 result.Add(move);
             }
-
-            MoveFigure(move, selectedFigureCoords);
         }
+
+        return result;
+    }
+
+    private bool IsCheckAt((int, int) selectedFigureCoords, (int, int) move)
+    {
+        var destinationCell = getCellByCoords(move);
+        var destinationCellFigure = destinationCell.Figure;
+
+        PlaceFigureTo(selectedFigureCoords, move);
+
+        var result = IsCheck();
+
+        PlaceFigureTo(move, selectedFigureCoords);
+
+        destinationCell.Figure = destinationCellFigure;
 
         return result;
     }
@@ -190,37 +228,60 @@ public class GameController
         var result = new CoordsList();
         foreach (var move in GetPossibleAttacks(selectedFigureCoords))
         {
-            var currentCell = getCellByCoords(selectedFigureCoords);
-            var destinationCell = getCellByCoords(move);
-            var destinationCellFigure = destinationCell.Figure;
-            MoveFigure(selectedFigureCoords, move);
-            if (!IsCheck())
+            if (!IsCheckAt(selectedFigureCoords, move))
             {
                 result.Add(move);
             }
-
-            MoveFigure(move, selectedFigureCoords);
-            destinationCell.Figure = destinationCellFigure;
         }
 
         return result;
     }
 
-    private bool IsClearPath((int, int) from, (int, int) to)
+    private CoordsList Path((int, int) from, (int, int) to)
     {
-        for (int y = from.Item1 + 1; y < to.Item1; y++)
+        var result = new CoordsList();
+        var bigger = from.Item2 < to.Item2;
+        var start = bigger ? from : to;
+        var end = bigger ? to : from;
+        for (int y = start.Item1; y <= end.Item1; y++)
         {
-            for (int x = from.Item2; x < to.Item2; x++)
+            for (int x = start.Item2 + 1; x < end.Item2; x++)
             {
-                if (!CanMove(to))
-                {
-                    return false;
-                }
+                result.Add((y, x));
+            }
+        }
+
+        return result;
+    }
+
+    private bool IsPathClear((int, int) from, (int, int) to)
+    {
+        var path = Path(from, to);
+        foreach (var coords in path)
+        {
+            if (!CanMove(coords))
+            {
+                return false;
             }
         }
 
         return true;
     }
+
+    private bool IsPathWithoutChecks((int, int) from, (int, int) to)
+    {
+        var path = Path(from, to);
+        foreach (var coords in path)
+        {
+            if (IsCheckAt(from, coords))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
     private bool IsCheck()
     {
@@ -301,7 +362,7 @@ public class GameController
                 if (possibleAttacks.Contains(coords))
                 {
                     var attackTurn = new MoveTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
-                        MoveFigure);
+                        PlaceFigureTo);
 
                     attackTurn.DoTurn();
                     selectedCoords = null;
@@ -322,7 +383,7 @@ public class GameController
                 if (actualMoves.Contains(coords))
                 {
                     var moveTurn = new MoveTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
-                        MoveFigure);
+                        PlaceFigureTo);
 
                     moveTurn.DoTurn();
                     selectedCoords = null;
@@ -339,10 +400,11 @@ public class GameController
                 var currentFigure = currentCell.Figure;
                 var nextFigure = nextCell.Figure;
 
-                if (IsClearPath(selectedCoords.Value, coords))
+                var actualMoves = GetActualMoves(selectedCoords.Value);
+                if (actualMoves.Contains(coords))
                 {
                     var castlingTurn = new CastlingTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
-                        MoveFigure);
+                        PlaceFigureTo);
 
                     castlingTurn.DoTurn();
                     selectedCoords = null;

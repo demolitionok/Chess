@@ -14,7 +14,6 @@ public class CastlingTurn : MovingTurn
     public override void DoTurn()
     {
         base.DoTurn();
-        var objFig = ObjectFigure;
         var centerCoords = ((ObjectCoords.Item1 + SubjectCoords.Item1)/2, (ObjectCoords.Item2 + SubjectCoords.Item2)/2);
         var newKingCoords = centerCoords;
         var newRookCoords = (centerCoords.Item1, centerCoords.Item2 + 1);
