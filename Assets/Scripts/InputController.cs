@@ -8,23 +8,25 @@ public enum PlayerAction
     CancelSelection,
     SelectNewFigure,
     AttackFigure,
-    MoveFigure
+    MoveFigure,
+    Castling
 }
 
-public delegate void OnActionSend((int, int) coords);
-public delegate void OnActionRequest((int, int) coords, PlayerAction playerAction);
+public delegate void ActionSend((int, int) coords);
+public delegate void ActionRequest((int, int) coords, PlayerAction playerAction);
 
 public class InputController
 {
     private readonly Func<Side> getCurrentSide;
     private readonly Func<(int, int)?> getSelectedCoords;
     private readonly Func<(int, int), Cell> getCellByCoords;
-    public OnActionRequest OnActionRequest;
+    public ActionRequest ActionRequest;
 
     public void RequestAction((int, int) coords)
     {
         var nextCell = getCellByCoords(coords);
         var selectedCoords = getSelectedCoords.Invoke();
+
         var currentSide = getCurrentSide.Invoke();
         
         if (selectedCoords == null)
@@ -33,26 +35,40 @@ public class InputController
             {
                 if (currentSide == nextCell.Figure.Side)
                 {
-                    OnActionRequest(coords, PlayerAction.SelectNewFigure);
+                    ActionRequest(coords, PlayerAction.SelectNewFigure);
                 }
             }
         }
         else
         {
+            var selectedCell = getCellByCoords(selectedCoords.Value);
             if (selectedCoords == coords)
             {
-                OnActionRequest(coords, PlayerAction.CancelSelection);
+                ActionRequest(coords, PlayerAction.CancelSelection);
             }
 
             else if (nextCell.Figure != null)
             {
-                OnActionRequest(coords, currentSide == nextCell.Figure.Side
-                    ? PlayerAction.SelectNewFigure
-                    : PlayerAction.AttackFigure);
+                if (currentSide == nextCell.Figure.Side)
+                {
+                    if (nextCell.Figure is Tower tower && selectedCell.Figure is King king)
+                    {
+                        if(!king.IsMoved && !tower.IsMoved)
+                            ActionRequest(coords, PlayerAction.Castling);
+                    }
+                    else
+                    {
+                        ActionRequest(coords, PlayerAction.SelectNewFigure);
+                    }
+                }
+                else
+                {
+                    ActionRequest(coords, PlayerAction.AttackFigure);
+                }
             }
             else
             {
-                OnActionRequest(coords, PlayerAction.MoveFigure);
+                ActionRequest(coords, PlayerAction.MoveFigure);
             }
         }
     }

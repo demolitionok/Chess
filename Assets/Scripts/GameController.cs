@@ -6,6 +6,8 @@ using UnityEngine;
 
 public delegate void OnSelection();
 
+public delegate void OnPlayerTurn();
+
 public class GameController
 {
     public OnSelection OnSelection;
@@ -204,6 +206,21 @@ public class GameController
         return result;
     }
 
+    private bool IsClearPath((int, int) from, (int, int) to)
+    {
+        for (int y = from.Item1 + 1; y < to.Item1; y++)
+        {
+            for (int x = from.Item2; x < to.Item2; x++)
+            {
+                if (!CanMove(to))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     private bool IsCheck()
     {
@@ -279,13 +296,13 @@ public class GameController
 
                 var nextFigure = nextCell.Figure;
                 var currentFigure = currentCell.Figure;
-               
+
                 var possibleAttacks = GetActualAttacks(selectedCoords.Value);
                 if (possibleAttacks.Contains(coords))
                 {
-                    var attackTurn = new MovingTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
+                    var attackTurn = new MoveTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
                         MoveFigure);
-                    
+
                     attackTurn.DoTurn();
                     selectedCoords = null;
                     currentSide = currentSide == Side.White ? Side.Black : Side.White;
@@ -297,17 +314,37 @@ public class GameController
             {
                 var currentCell = getCellByCoords(selectedCoords.Value);
                 var nextCell = getCellByCoords(coords);
-                
+
                 var currentFigure = currentCell.Figure;
                 var nextFigure = nextCell.Figure;
-                
+
                 var actualMoves = GetActualMoves(selectedCoords.Value);
                 if (actualMoves.Contains(coords))
                 {
-                    var attackTurn = new MovingTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
+                    var moveTurn = new MoveTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
                         MoveFigure);
-                    
-                    attackTurn.DoTurn();
+
+                    moveTurn.DoTurn();
+                    selectedCoords = null;
+                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                }
+
+                break;
+            }
+            case PlayerAction.Castling:
+            {
+                var currentCell = getCellByCoords(selectedCoords.Value);
+                var nextCell = getCellByCoords(coords);
+
+                var currentFigure = currentCell.Figure;
+                var nextFigure = nextCell.Figure;
+
+                if (IsClearPath(selectedCoords.Value, coords))
+                {
+                    var castlingTurn = new CastlingTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
+                        MoveFigure);
+
+                    castlingTurn.DoTurn();
                     selectedCoords = null;
                     currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }

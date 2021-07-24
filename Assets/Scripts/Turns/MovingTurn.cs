@@ -3,21 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MovingTurn : Turn
+public abstract class MovingTurn : Turn
 {
-    private readonly Action<(int, int), (int, int)> _moveFigure;
+    protected readonly Action<(int, int), (int, int)> MoveFigure;
 
-    public MovingTurn((int, int) subjectCoords, (int, int) objectCoords, Figure subjectFigure, Figure objectFigure,
+    protected MovingTurn((int, int) subjectCoords, (int, int) objectCoords, Figure subjectFigure, Figure objectFigure,
         Action<(int, int), (int, int)> moveFigure) :
         base(subjectCoords, objectCoords, subjectFigure, objectFigure)
     {
-        _moveFigure = moveFigure;
+        MoveFigure = moveFigure;
     }
 
     public override void DoTurn()
     {
         base.DoTurn();
-        _moveFigure(SubjectCoords, ObjectCoords);
         SubjectFigure.OnMove?.Invoke();
     }
 }
