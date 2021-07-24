@@ -6,7 +6,6 @@ using UnityEngine;
 
 public delegate void OnSelection();
 
-
 public class GameController
 {
     public OnSelection OnSelection;
@@ -262,7 +261,7 @@ public class GameController
         return true;
     }
 
-    //TODO: turn and OnTurn()
+    //TODO: turn and OnTurn(
     public void ProcessAction((int, int) coords, PlayerAction playerAction) //!should be written in (y, x) format
     {
         switch (playerAction)
@@ -276,12 +275,18 @@ public class GameController
             case PlayerAction.AttackFigure:
             {
                 var currentCell = getCellByCoords(selectedCoords.Value);
+                var nextCell = getCellByCoords(coords);
+
+                var nextFigure = nextCell.Figure;
                 var currentFigure = currentCell.Figure;
+               
                 var possibleAttacks = GetActualAttacks(selectedCoords.Value);
                 if (possibleAttacks.Contains(coords))
                 {
-                    MoveFigure(selectedCoords.Value, coords);
-                    currentFigure.OnMove?.Invoke();
+                    var attackTurn = new MovingTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
+                        MoveFigure);
+                    
+                    attackTurn.DoTurn();
                     selectedCoords = null;
                     currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }
@@ -291,12 +296,18 @@ public class GameController
             case PlayerAction.MoveFigure:
             {
                 var currentCell = getCellByCoords(selectedCoords.Value);
+                var nextCell = getCellByCoords(coords);
+                
                 var currentFigure = currentCell.Figure;
+                var nextFigure = nextCell.Figure;
+                
                 var actualMoves = GetActualMoves(selectedCoords.Value);
                 if (actualMoves.Contains(coords))
                 {
-                    MoveFigure(selectedCoords.Value, coords);
-                    currentFigure.OnMove?.Invoke();
+                    var attackTurn = new MovingTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
+                        MoveFigure);
+                    
+                    attackTurn.DoTurn();
                     selectedCoords = null;
                     currentSide = currentSide == Side.White ? Side.Black : Side.White;
                 }
