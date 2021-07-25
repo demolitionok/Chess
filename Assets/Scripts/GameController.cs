@@ -11,6 +11,7 @@ public delegate void OnPlayerTurn();
 public class GameController
 {
     public OnSelection OnSelection;
+    public OnPlayerTurn OnPlayerTurn;
     private (int, int)? selectedCoords;
     private Side currentSide = Side.White;
     private readonly Func<(int, int), Cell> getCellByCoords;
@@ -179,10 +180,10 @@ public class GameController
                 {
                     var destCoords = (y, x);
                     var curCell = getCellByCoords(destCoords);
-                    
+
                     if (curCell.Figure is Tower tower)
                     {
-                        if (curCell.Figure.Side == currentSide)
+                        if (curCell.Figure.Side == currentSide && !tower.IsMoved && !king.IsMoved)
                         {
                             var isPathClear = IsPathClear(selectedFigureCoords, destCoords);
                             var isPathWithoutCheck = IsPathWithoutChecks(selectedFigureCoords, destCoords);
@@ -365,8 +366,7 @@ public class GameController
                         PlaceFigureTo);
 
                     attackTurn.DoTurn();
-                    selectedCoords = null;
-                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                    OnPlayerTurn.Invoke();
                 }
 
                 break;
@@ -386,8 +386,7 @@ public class GameController
                         PlaceFigureTo);
 
                     moveTurn.DoTurn();
-                    selectedCoords = null;
-                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                    OnPlayerTurn.Invoke();
                 }
 
                 break;
@@ -407,8 +406,7 @@ public class GameController
                         PlaceFigureTo);
 
                     castlingTurn.DoTurn();
-                    selectedCoords = null;
-                    currentSide = currentSide == Side.White ? Side.Black : Side.White;
+                    OnPlayerTurn.Invoke();
                 }
 
                 break;
@@ -425,5 +423,10 @@ public class GameController
         this.getCellByCoords = getCellByCoords;
         this.ySize = ySize;
         this.xSize = xSize;
+        OnPlayerTurn += () =>
+        {
+            selectedCoords = null;
+            currentSide = currentSide == Side.White ? Side.Black : Side.White;
+        };
     }
 }
