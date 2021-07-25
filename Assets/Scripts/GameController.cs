@@ -340,6 +340,18 @@ public class GameController
         return true;
     }
 
+    private bool ValidTurn((int,int) coords, CoordsList validList, Turn turn)
+    {
+        if (validList.Contains(coords))
+        {
+            turn.DoTurn();
+            OnPlayerTurn.Invoke();
+            return true;
+        }
+
+        return false;
+    }
+
     //TODO: turn and OnTurn(
     public void ProcessAction((int, int) coords, PlayerAction playerAction) //!should be written in (y, x) format
     {
@@ -355,19 +367,14 @@ public class GameController
             {
                 var currentCell = getCellByCoords(selectedCoords.Value);
                 var nextCell = getCellByCoords(coords);
-
                 var nextFigure = nextCell.Figure;
                 var currentFigure = currentCell.Figure;
-
-                var possibleAttacks = GetActualAttacks(selectedCoords.Value);
-                if (possibleAttacks.Contains(coords))
-                {
-                    var attackTurn = new MoveTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
+                
+                var actualAttacks = GetActualAttacks(selectedCoords.Value);
+                var attackTurn = new MoveTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
                         PlaceFigureTo);
-
-                    attackTurn.DoTurn();
-                    OnPlayerTurn.Invoke();
-                }
+                
+                ValidTurn(coords, actualAttacks, attackTurn);
 
                 break;
             }
@@ -380,14 +387,9 @@ public class GameController
                 var nextFigure = nextCell.Figure;
 
                 var actualMoves = GetActualMoves(selectedCoords.Value);
-                if (actualMoves.Contains(coords))
-                {
-                    var moveTurn = new MoveTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
-                        PlaceFigureTo);
-
-                    moveTurn.DoTurn();
-                    OnPlayerTurn.Invoke();
-                }
+                var moveTurn = new MoveTurn(selectedCoords.Value, coords, currentFigure, nextFigure, PlaceFigureTo);
+                
+                ValidTurn(coords, actualMoves, moveTurn);
 
                 break;
             }
@@ -400,15 +402,11 @@ public class GameController
                 var nextFigure = nextCell.Figure;
 
                 var actualMoves = GetActualMoves(selectedCoords.Value);
-                if (actualMoves.Contains(coords))
-                {
-                    var castlingTurn = new CastlingTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
+                var castlingTurn = new CastlingTurn(selectedCoords.Value, coords, currentFigure, nextFigure,
                         PlaceFigureTo);
 
-                    castlingTurn.DoTurn();
-                    OnPlayerTurn.Invoke();
-                }
-
+                ValidTurn(coords, actualMoves, castlingTurn);
+                
                 break;
             }
             default:
