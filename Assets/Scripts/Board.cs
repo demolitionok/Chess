@@ -8,24 +8,24 @@ public class Board
 {
     private readonly int xSize;
     private readonly int ySize;
-    private GameObject[,] CellsGameObjects;
+    private Cell[,] Cells;
 
     public Board(int ySize, int xSize)
     {
         this.ySize = ySize;
         this.xSize = xSize;
-        CellsGameObjects = new GameObject[ySize, xSize];
+        Cells = new Cell[ySize, xSize];
     }
 
-    public void RegisterCell(GameObject cellGameObject, (int, int) coords, ActionSend actionSend) //!coords should be written in (y, x) format
+    public void RegisterCell(Cell cell, (int, int) coords, ActionSend actionSend) //!coords should be written in (y, x) format
     {
-        var cell = cellGameObject.AddComponent<Cell>();
+        var cellGameObject = cell.gameObject;
         cellGameObject.GetComponent<Button>().onClick.AddListener(() => { actionSend.Invoke(coords); });
-        CellsGameObjects[coords.Item1, coords.Item2] = cellGameObject;
+        Cells[coords.Item1, coords.Item2] = cell;
     }
 
     public Cell GetCellByCoords((int, int) coords) //!coords should be written in (y, x) format
     {
-        return CellsGameObjects[coords.Item1, coords.Item2].GetComponent<Cell>();
+        return Cells[coords.Item1, coords.Item2];
     }
 }

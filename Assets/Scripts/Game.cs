@@ -51,23 +51,14 @@ public class Game : MonoBehaviour
         {
             for (int x = 0; x < xSize; x++)
             {
-                GameObject cellGameObject = Instantiate(CellPrefab,
-                    new Vector3(x * cellWidth + offset, -y * cellHeight - offset), Quaternion.identity);
-                cellGameObject.transform.SetParent(gameObject.transform, false);
-
-                Board.RegisterCell(cellGameObject, (y, x), inputController.RequestAction);
-
-                cellGameObject = Board.GetCellByCoords((y, x)).gameObject;
-
-                var cell = cellGameObject.GetComponent<Cell>();
-                cell.Figure = null;
+                var cell = CreateCell((y, x));
 
                 if (y == 1)
                 {
                     cell.Figure = new Pawn("pawn", Side.Black);
                 }
 
-                if (y == 6)
+                if (y == ySize - 2)
                 {
                     cell.Figure = new Pawn("pawn", Side.White);
                 }
@@ -121,8 +112,19 @@ public class Game : MonoBehaviour
                 {
                     cell.Figure = new King("king", Side.White);
                 }
+                
+                Board.RegisterCell(cell, (y, x), inputController.RequestAction);
             }
         }
+    }
+
+    private Cell CreateCell((int,int) coords)
+    {
+        GameObject cellGameObject = Instantiate(CellPrefab,
+            new Vector3(coords.Item2 * cellWidth + offset, -coords.Item1 * cellHeight - offset), Quaternion.identity);
+        cellGameObject.transform.SetParent(gameObject.transform, false);
+        var cell = cellGameObject.AddComponent<Cell>();
+        return cell;
     }
 
     public void UpdateBoard()
